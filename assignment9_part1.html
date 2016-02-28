@@ -617,7 +617,7 @@ to be missing from the CS cluster.</p>
 
 <h2>Assignment (20 points)</h2>
 
-<h3>Using Bitbucket and Git</h3>
+<h3>Using Github and Git</h3>
 <p>In past weeks, you have pulled the assignment directories using Git, but have
 turned your code in via Moodle. For this project, to encourage you to take
 advantage of Git's version control functionality, you will be required to use Git
@@ -627,27 +627,32 @@ to turn in your assignments as well.</p>
 to use Git as a software development tool. Using Git will help you keep your
 group's code synchronized and help your group reconcile changes.</p>
 
-<p>Here's what you should already have done, given that you're reading this:</p>
+Each member of your group should create a Github account. Then, one member of
+your group should do the following:
 
 <ul>
-    <li>Create a Bitbucket account for yourself. This applies even if you're
-    in a group.</li>
-    <li>If you're in a group, one of you should create a team account for the
-    group. Then, add every group member to the team account.This will make it
-    easier for your group to share code.
-    </li>
-    <li>Go to <a href="https://bitbucket.org/caltechcs2/cs2_othello_2015">the
-    repository page</a> for this assignment.</li>
-    <li>Click on the "Fork" button. Set the owner to your group's team account,
-    or to yourself if soloing. Make sure "Inherit repository user/group
-    permissions" is checked, so the TAs can access your repository for grading.
-    Then, click "Fork repository".</li>
-    <li>Click on the "Clone" button. Copy the command line it provides, and
-    run that. That will create a new local repository synchronized to your fork.</li>
+    <li>Use the Github web interface to create a new public repository. You can
+        name the repository whatever you'd like, such as a team name or just
+        "othello". </li>
+    <li>In the directory for this assignment, run "<span class="code">git remote set-url origin https://github.com/USER/REPO.git</span>".
+        Replace <span class="code">USER</span> with your
+        Github username, and
+        replace <span class="code">REPO</span> with the repository
+        name that you chose in the previous step.</li>
+    <li>Run <span class="code">git push</span>. Now, if you refresh your
+        repository's Github webpage, you should see the code for this assignment.</li>
+    <li>Click "Settings" on your repository's Github webpage, then click
+        "Collaborators". Add your teammate as a collaborator. This will allow
+        them to <span class="code">git push</span> to your repository.</li>
 </ul>
 
+Your teammate should now clone your repository by running <span class="code">git clone https://github.com/USER/REPO.git</span>.
+If they have already retrieved the assignment by running <span class="code">git clone https://github.com/caltechcs2/othello.git</span>,
+then, instead of running <span class="code">git clone</span> again,
+they can run <span class="code">git remote set-url origin https://github.com/USER/REPO.git</span>
+from inside the assignment's directory.
 
-<p>Here's what you should do now, to practice the basic version-control operations
+<p>Now, practice the basic version-control operations
 you'll need to perform during the course of this assignment:</p>
 
 <ul>
