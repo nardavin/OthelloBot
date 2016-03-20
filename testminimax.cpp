@@ -1,4 +1,4 @@
-#include <cstdio>
+#include <iostream>
 #include "common.hpp"
 #include "player.hpp"
 #include "board.hpp"
@@ -36,15 +36,15 @@ int main(int argc, char *argv[]) {
     Move *move = player->doMove(NULL, 0);
 
     if (move != NULL && move->x == 1 && move->y == 1) {
-        printf("Correct move: (1, 1)");
+        std::cout << "Correct move: (1, 1)" << std::endl;;
     } else {
-        printf("Wrong move: got ");
+        std::cout << "Wrong move: got ";
         if (move == NULL) {
-            printf("PASS");
+            std::cout << "PASS";
         } else {
-            printf("(%d, %d)", move->x, move->y);
+            std::cout << "(" << move->x << ", " << move->y << ")";
         }
-        printf(", expected (1, 1)\n");
+        std::cout << ", expected (1, 1)" << std::endl;
     }
 
     return 0;
