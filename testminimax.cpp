@@ -1,7 +1,7 @@
 #include <cstdio>
-#include "common.h"
-#include "player.h"
-#include "board.h"
+#include "common.hpp"
+#include "player.hpp"
+#include "board.hpp"
 
 // Use this file to test your minimax implementation (2-ply depth, with a
 // heuristic of the difference in number of pieces).
@@ -11,12 +11,12 @@ int main(int argc, char *argv[]) {
     // this, but it's provided for convenience.
     char boardData[64] = {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-        ' ', 'b', ' ', ' ', ' ', ' ', ' ', ' ', 
-        'b', 'w', 'b', 'b', 'b', 'b', ' ', ' ', 
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', 'b', ' ', ' ', ' ', ' ', ' ', ' ',
+        'b', 'w', 'b', 'b', 'b', 'b', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
     };
     Board *board = new Board();
@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
     player->testingMinimax = true;
 
 
-    /** 
-     * TODO: Write code to set your player's internal board state to the 
+    /**
+     * TODO: Write code to set your player's internal board state to the
      * example state.
      */
 
