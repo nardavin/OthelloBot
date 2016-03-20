@@ -72,7 +72,7 @@ bool Board::hasMoves(Side side) {
  */
 bool Board::checkMove(Move *m, Side side) {
     // Passing is only legal if you have no moves.
-    if (m == NULL) return !hasMoves(side);
+    if (m == nullptr) return !hasMoves(side);
 
     int X = m->getX();
     int Y = m->getY();
@@ -105,8 +105,8 @@ bool Board::checkMove(Move *m, Side side) {
  * Modifies the board to reflect the specified move.
  */
 void Board::doMove(Move *m, Side side) {
-    // A NULL move means pass.
-    if (m == NULL) return;
+    // A nullptr move means pass.
+    if (m == nullptr) return;
 
     // Ignore if move is invalid.
     if (!checkMove(m, side)) return;
