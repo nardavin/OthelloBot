@@ -1,4 +1,4 @@
-#include "board.h"
+#include "board.hpp"
 
 /*
  * Make a standard 8x8 othello board and initialize it to the standard setup.
@@ -45,9 +45,9 @@ bool Board::onBoard(int x, int y) {
     return(0 <= x && x < 8 && 0 <= y && y < 8);
 }
 
- 
+
 /*
- * Returns true if the game is finished; false otherwise. The game is finished 
+ * Returns true if the game is finished; false otherwise. The game is finished
  * if neither side has a legal move.
  */
 bool Board::isDone() {
