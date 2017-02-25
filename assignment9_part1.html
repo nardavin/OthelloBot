@@ -731,9 +731,9 @@ separate window. To play against SimplePlayer yourself:</p>
 
 <p><span class="code">testgame</span> also takes an optional 3rd argument, which is the time allotted to
 each player in milliseconds. If it is not provided, both players are given
-unlimited time. For example, to give each player 16 minutes each:</p>
+unlimited time. For example, to give each player 5 minutes each (the time limit that will be used in the tournament):</p>
 
-    <div class="code">./testgame player SimplePlayer 960000</div>
+    <div class="code">./testgame player SimplePlayer 300000</div>
 <br />
 
 <p><div class="points easy">5</div>
@@ -855,7 +855,7 @@ different approach for actual competitive play.
 </p>
 
 
-
+<div class="attention" style="padding-top: 0">
 <p>Finally, when writing your AI, you should keep in mind a few rules for the tournament:
 <ul>
     <li>Your final executable program should have a unique name related to your team name.</li>
@@ -863,11 +863,13 @@ different approach for actual competitive play.
     subject to change, so make sure to pay attention to <span class="code">msLeft</span>.</li>
     <li>The constructor for your AI must return within 30 seconds.</li>
     <li>Your AI must not try to steal resources from the other player (such as memory). During
-    the tournament, you will be limited to 768M of memory (the wrapper classes already do this).
+    the tournament, you will be limited to 768M of memory (the tournament manager marks a loss for AIs that go over this limit).
     </li>
     <li>Your AI may be permitted to read from and write to files with filename beginning with your team name (or some other name unique to you). The data files will be in the same folder as your executable. Remember that there will be multiple copies of your AI running at the same time. This rule may be subject to change if it is found infeasible.</li>
 </ul>
 </p>
+</div>
+
 <hr />
 <a name="other_languages">
 <h3>Using Other Languages</h3>
