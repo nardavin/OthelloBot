@@ -56,3 +56,14 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 Move Player::minimax(*Board board, int depth, int msLeft, bool isOurTurn){
     vector<*Board> boards;
 }
+
+float Player::heuristic(Board* board) {
+    // Sample total score heuristic
+    float heuristic = board->countWhite - board->countBlack;
+    if (ourSide == BLACK) {
+        heuristic *= -1;
+    }
+    return heuristic;
+    
+    // Actual heuristic 
+}
