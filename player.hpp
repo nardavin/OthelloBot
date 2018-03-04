@@ -7,7 +7,10 @@
 using namespace std;
 
 class Player {
-
+private:
+    Move Player::minimax(int depth);
+    Side ourSide;
+    Side otherSide;
 public:
     Player(Side side);
     ~Player();
