@@ -7,7 +7,8 @@
 using namespace std;
 
 class Player {
-
+private:
+    Board* othelloBoard;
 public:
     Player(Side side);
     ~Player();
