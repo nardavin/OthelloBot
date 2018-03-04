@@ -42,7 +42,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      */
     if (testingMinimax == true) {
         // pass 2 to test_minimax
-        Move* moveToMake = minimax(othelloBoard, 2, msLeft);
+        Move* moveToMake = minimax(othelloBoard, 2, msLeft, true);
     }
     else {
         // actually do cool things
@@ -53,6 +53,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     return nullptr;
 }
 
-Move Player::minimax(Board board, int depth, int msLeft){
-    vector<Board> boards;
+Move Player::minimax(*Board board, int depth, int msLeft, bool isOurTurn){
+    vector<*Board> boards;
 }
