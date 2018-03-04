@@ -1,14 +1,24 @@
 #include "boardNode.hpp"
 
-using namespace std::this_thread;
-using namespace std::chrono;
+int nodes = 0;
 
+/**
+ * Constructs node
+ * @param b Board to load into mode
+ * @param m Move made to ged to this node from last
+ */
 BoardNode::BoardNode(Board* b, Move* m){
     board = b;
     move = m;
     children = vector<BoardNode*>();
     isBottom = false;
+    nodes ++;
+    cerr << nodes << endl;
 }
+
+/**
+ * Deconstructs node
+ */
 BoardNode::~BoardNode(){
     delete board;
     delete move;
@@ -16,14 +26,23 @@ BoardNode::~BoardNode(){
         delete children[i];
     }
     children.clear();
+    nodes --;
 }
 
+/**
+ * Gets the move that was used to get from the previous board to this one
+ * @return Move that was used to get from perbious board to this one
+ */
 Move BoardNode::getMove(){
     return *move;
 }
 
+/**
+ * Recursively builds the node tree by searching for all possible moves
+ * @param side  Side that is making the move at this level
+ * @param depth How deep the tree should be
+ */
 void BoardNode::buildTree(Side side, int depth){
-
     if(depth == 0){
         isBottom = true;
         return;
@@ -51,6 +70,13 @@ void BoardNode::buildTree(Side side, int depth){
     }
 }
 
+/**
+ * Recursively finds the best score for each path
+ * @param  heuristic Heuristic function that defines the score for each position
+ * @param  side      The side thet you are playing on. Passed into heuristic function.
+ * @param  isMaxing  True if this node layer is meant to maximize the value, false if minimize.
+ * @return           Float of the "best" score for this parent node
+ */
 float BoardNode::getNodeBestScore(float (*heuristic)(Board*, Side), Side side, bool isMaxing){
     if(isBottom){
         return (*heuristic)(board, side);
@@ -65,6 +91,12 @@ float BoardNode::getNodeBestScore(float (*heuristic)(Board*, Side), Side side, b
     return bestScore;
 }
 
+/**
+ * Finds the best move to make this round
+ * @param  heuristic Heuristic function that defines the score for each position
+ * @param  side      The side thet you are playing on. Passed into heuristic function.
+ * @return           The most optimal move based on the heuristic function
+ */
 Move* BoardNode::getBestChoice(float (*heuristic)(Board*, Side), Side side){
     if(children.size() == 0){
         return nullptr;

@@ -54,7 +54,6 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     othelloBoard->doMove(moveToMake, ourSide);
 
-    cerr << "Move: " << moveToMake->x << " " << moveToMake->y << endl;
     return moveToMake;
 }
 
