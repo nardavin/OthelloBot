@@ -67,8 +67,46 @@ float naiveHeuristic(Board* board, Side side) {
     return value;
 }
 
+float heuristic(Board* board, Side side) {
+    float value = board->countWhite() - board->countBlack();
+    if (side == BLACK) {
+        value *= -1;
+    }
+    
+    if (board->get(side, 0, 0) == true) {
+        value += 10;
+    }
+    else if (board->get(side, 7, 0) == true) {
+        value += 10;
+    }
+    else if (board->get(side, 0, 7) == true) {
+        value += 10;
+    }
+    else if (board->get(side, 7, 7) == true) {
+        value += 10;
+    }
+    
+    Side otherSide = (side == BLACK) ? WHITE:BLACK;
+    if (board->get(otherSide, 0,0)) {
+        value -= 100;
+    }
+    else if(board->get(otherSide, 7,0)) {
+        value -= 100;
+    }
+    else if(board->get(otherSide, 7,7)) {
+        value -= 100;
+    }
+    else if(board->get(otherSide, 0,7)) {
+        value -= 100;
+    }
+    
+
+    return value;
+}
+
 Move *Player::minimax(Board* board, int depth, int msLeft){
     BoardNode root = BoardNode(othelloBoard->copy(), nullptr);
     root.buildTree(ourSide, depth);
-    return root.getBestChoice(&naiveHeuristic, ourSide);
+    //return root.getBestChoice(&naiveHeuristic, ourSide);
+    return root.getBestChoice(&heuristic, ourSide);
 }
