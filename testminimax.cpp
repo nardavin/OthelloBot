@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include "player.hpp"
 #include "board.hpp"
+#include "boardNode.hpp"
 
 // Use this file to test your minimax implementation (2-ply depth, with a
 // heuristic of the difference in number of pieces).
@@ -26,11 +27,8 @@ int main(int argc, char *argv[]) {
     Player *player = new Player(WHITE);
     player->testingMinimax = true;
 
+    player->setBoard(board);
 
-    /**
-     * TODO: Write code to set your player's internal board state to the
-     * example state.
-     */
 
     // Get player's move and check if it's right.
     Move *move = player->doMove(nullptr, 0);

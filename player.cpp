@@ -22,6 +22,10 @@ Player::~Player() {
     delete othelloBoard;
 }
 
+void Player::setBoard(Board* b){
+    othelloBoard = b;
+}
+
 /*
  * Compute the next move given the opponent's last move. Your AI is
  * expected to keep track of the board on its own. If this is the first move,
@@ -36,34 +40,35 @@ Player::~Player() {
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
+
+    othelloBoard->doMove(opponentsMove, otherSide);
+
+    Move* moveToMake;
+
     if (testingMinimax == true) {
-        // pass 2 to test_minimax
-        Move* moveToMake = minimax(othelloBoard, 2, msLeft, true);
+        moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-        // actually do cool things
+        moveToMake = minimax(othelloBoard, 5, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
 
-    return nullptr;
+
+    return moveToMake;
 }
 
-Move Player::minimax(*Board board, int depth, int msLeft, bool isOurTurn){
-    vector<*Board> boards;
-}
-
-float Player::heuristic(Board* board) {
+float naiveHeuristic(Board* board, Side side) {
     // Sample total score heuristic
-    float heuristic = board->countWhite - board->countBlack;
-    if (ourSide == BLACK) {
-        heuristic *= -1;
+    float value = board->countWhite() - board->countBlack();
+    if (side == BLACK) {
+        value *= -1;
     }
-    return heuristic;
-    
-    // Actual heuristic 
+    return value;
+}
+
+Move *Player::minimax(Board* board, int depth, int msLeft){
+    BoardNode root = BoardNode(othelloBoard->copy(), nullptr);
+    root.buildTree(ourSide, depth);
+    return root.getBestChoice(&naiveHeuristic, ourSide);
 }
