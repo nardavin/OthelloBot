@@ -49,12 +49,12 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-        moveToMake = minimax(othelloBoard, 5, msLeft);
+        moveToMake = minimax(othelloBoard, 6, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
 
-
+    cerr << "Move: " << moveToMake->x << " " << moveToMake->y << endl;
     return moveToMake;
 }
 
@@ -72,7 +72,7 @@ float heuristic(Board* board, Side side) {
     if (side == BLACK) {
         value *= -1;
     }
-    
+
     if (board->get(side, 0, 0) == true) {
         value += 10;
     }
@@ -85,7 +85,7 @@ float heuristic(Board* board, Side side) {
     else if (board->get(side, 7, 7) == true) {
         value += 10;
     }
-    
+
     Side otherSide = (side == BLACK) ? WHITE:BLACK;
     if (board->get(otherSide, 0,0)) {
         value -= 100;
@@ -99,7 +99,7 @@ float heuristic(Board* board, Side side) {
     else if(board->get(otherSide, 0,7)) {
         value -= 100;
     }
-    
+
 
     return value;
 }

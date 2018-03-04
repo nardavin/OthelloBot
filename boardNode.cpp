@@ -9,7 +9,6 @@ BoardNode::BoardNode(Board* b, Move* m){
     children = vector<BoardNode*>();
     isBottom = false;
 }
-
 BoardNode::~BoardNode(){
     delete board;
     delete move;
@@ -36,6 +35,9 @@ void BoardNode::buildTree(Side side, int depth){
                 Board* b = board->copy();
                 b->doMove(move, side);
                 children.push_back(new BoardNode(b, move));
+            }
+            else{
+                delete move;
             }
         }
     }
