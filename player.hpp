@@ -8,7 +8,9 @@ using namespace std;
 
 class Player {
 private:
-    Move Player::minimax(int depth);
+    Move Player::minimax(Board board, int depth, int msLeft);
+
+    Board* othelloBoard;
     Side ourSide;
     Side otherSide;
 public:

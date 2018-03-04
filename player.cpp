@@ -9,6 +9,8 @@ Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
 
+    othelloBoard = new Board();
+
     ourSide = side;
     otherSide = (side == BLACK) ? WHITE : BLACK;
 }
@@ -17,6 +19,7 @@ Player::Player(Side side) {
  * Destructor for the player.
  */
 Player::~Player() {
+    delete othelloBoard;
 }
 
 /*
@@ -37,9 +40,19 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
+    if (testingMinimax = true) {
+        // pass 2 to test_minimax
+        Move* moveToMake = minimax(othelloBoard, 2, msLeft);
+    }
+    else {
+        // actually do cool things
+    }
+
+    othelloBoard->doMove(moveToMake, ourSide);
+
     return nullptr;
 }
 
-Move Player::minimax(Board board, int depth){
+Move Player::minimax(Board board, int depth, int msLeft){
     vector<Board> boards;
 }
