@@ -40,7 +40,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
-    if (testingMinimax = true) {
+    if (testingMinimax == true) {
         // pass 2 to test_minimax
         Move* moveToMake = minimax(othelloBoard, 2, msLeft);
     }
