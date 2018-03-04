@@ -1,6 +1,9 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+// #define BLACK false
+// #define WHITE true
+
 enum Side { 
     WHITE, BLACK
 };
