@@ -10,6 +10,7 @@ Board::Board() {
     taken.set(4 + 8 * 4);
     black.set(4 + 8 * 3);
     black.set(3 + 8 * 4);
+    parity = 0;
 }
 
 /*
@@ -106,7 +107,11 @@ bool Board::checkMove(Move *m, Side side) {
  */
 void Board::doMove(Move *m, Side side) {
     // A nullptr move means pass.
-    if (m == nullptr) return;
+    if (m == nullptr){
+        parity += 1;
+        parity %= 2;
+        return;
+    }
 
     // Ignore if move is invalid.
     if (!checkMove(m, side)) return;
@@ -139,6 +144,31 @@ void Board::doMove(Move *m, Side side) {
         }
     }
     set(side, X, Y);
+}
+
+// Count the number of stable tiles and scale for the Heuristic
+int Board::countStableHeuristic(Side side) {
+    // count?
+    return 0;
+}
+
+// Find possible moves
+// MEMORY LEAK HERE FIX IT
+vector<Move*> Board::possibleMoves(Side side) {
+    vector<Move*> moves;
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            Move* move = new Move(i, j);
+            if(checkMove(move, side)) {
+                moves.push_back(move);
+            }
+        }
+    }
+    return moves;
+}
+
+int Board::getParity() {
+    return parity;
 }
 
 /*

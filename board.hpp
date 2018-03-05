@@ -15,12 +15,17 @@ private:
     bool occupied(int x, int y);
     void set(Side side, int x, int y);
     bool onBoard(int x, int y);
+    int parity;
 
 public:
     Board();
     ~Board();
     Board *copy();
 
+    int countStableHeuristic(Side side);
+    vector<Move*> possibleMoves(Side side);
+    int getParity();
+    
     bool isDone();
     bool get(Side side, int x, int y);
     bool hasMoves(Side side);

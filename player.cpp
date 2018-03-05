@@ -49,7 +49,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-        moveToMake = minimax(othelloBoard, 5, msLeft);
+        moveToMake = minimax(othelloBoard, 4, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
@@ -68,25 +68,53 @@ float naiveHeuristic(Board* board, Side side) {
 }
 
 float heuristic(Board* board, Side side) {
-    float value = board->countWhite() - board->countBlack();
+    Side otherSide = (side == BLACK) ? WHITE:BLACK;
+    float value = (board->countWhite() - board->countBlack());
     if (side == BLACK) {
         value *= -1;
+        
+        if (board->getParity() == 1) {
+            // this value is arbitrary should be tuned
+            value += 1;
+        }
+        else {
+            value -= 1;
+        }
     }
     
+    else {
+        if (board->getParity() == 0) {
+            value += 1; 
+        } else {
+            value -= 1;
+        }
+    }
+    
+    // Maximise stable tiles
+    //value += board->countStableHeuristic(side)*2;
+    
+    // Maximise possible moves, minimise opponents moves
+    int posMoves = board->possibleMoves(side).size();
+    value += posMoves*2;
+    value -= posMoves*2;
+    
+    // minimise frontier?
+    
+    // These values are super random, maybe write a script to run hundreds of games with different parameters
+    // and find the best ones?
     if (board->get(side, 0, 0) == true) {
-        value += 10;
+        value += 100;
     }
     else if (board->get(side, 7, 0) == true) {
-        value += 10;
+        value += 100;
     }
     else if (board->get(side, 0, 7) == true) {
-        value += 10;
+        value += 100;
     }
     else if (board->get(side, 7, 7) == true) {
-        value += 10;
+        value += 100;
     }
     
-    Side otherSide = (side == BLACK) ? WHITE:BLACK;
     if (board->get(otherSide, 0,0)) {
         value -= 100;
     }
