@@ -49,11 +49,10 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-        moveToMake = minimax(othelloBoard, 4, msLeft);
+        moveToMake = minimax(othelloBoard, 6, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
-
 
     return moveToMake;
 }
@@ -102,6 +101,7 @@ float heuristic(Board* board, Side side) {
     
     // These values are super random, maybe write a script to run hundreds of games with different parameters
     // and find the best ones?
+
     if (board->get(side, 0, 0) == true) {
         value += 100;
     }
@@ -114,7 +114,7 @@ float heuristic(Board* board, Side side) {
     else if (board->get(side, 7, 7) == true) {
         value += 100;
     }
-    
+
     if (board->get(otherSide, 0,0)) {
         value -= 100;
     }
@@ -127,7 +127,7 @@ float heuristic(Board* board, Side side) {
     else if(board->get(otherSide, 0,7)) {
         value -= 100;
     }
-    
+
 
     return value;
 }
