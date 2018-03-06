@@ -49,7 +49,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-        moveToMake = minimax(othelloBoard, 10, msLeft);
+        moveToMake = minimax(othelloBoard, 6, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
@@ -93,7 +93,12 @@ float heuristic(Board* board, bool side) {
     //value += board->countStableHeuristic(side)*2;
 
     // Maximise possible moves, minimise opponents moves
-    int posMoves = board->possibleMoves(side).size();
+    vector<Move*> moves = board->possibleMoves(side);
+    int posMoves = moves.size();
+    for(int i = 0; i < (int)moves.size(); i++){
+        delete moves[i];
+    }
+    moves.clear();
     value += posMoves*2;
     value -= posMoves*2;
 

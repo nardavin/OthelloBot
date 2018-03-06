@@ -2,6 +2,9 @@
 #define __COMMON_H__
 
 #include <vector>
+#include <iostream>
+
+using namespace std;
 
 #define BLACK false
 #define WHITE true

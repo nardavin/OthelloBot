@@ -23,7 +23,7 @@ BoardNode::BoardNode(Board* board, bool ourSide){
  */
 BoardNode::~BoardNode(){
     delete board;
-    if (move) delete move;
+    delete move;
     for(int i = 0; i < (int)children.size(); i++){
         delete children[i];
     }
@@ -34,7 +34,6 @@ BoardNode::~BoardNode(){
  * Gets the move that was used to get from the previous board to this one
  * @return Move that was used to get from previous board to this one
  */
-
 Move BoardNode::getMove(){
     return *move;
 }
@@ -86,7 +85,6 @@ float BoardNode::searchTree(int depth, float alpha, float beta,
  * @param  side      The side thet you are playing on. Passed into heuristic function.
  * @return           The most optimal move based on the heuristic function
  */
-
 Move* BoardNode::getBestChoice(Board* board, int depth, float (*heuristic)(Board*, bool), bool ourSide){
     vector<Move*> possibleMoves = board->possibleMoves(ourSide);
     if(possibleMoves.size() == 0){
@@ -111,62 +109,3 @@ Move* BoardNode::getBestChoice(Board* board, int depth, float (*heuristic)(Board
     children.clear();
     return new Move(ret.getX(), ret.getY());
 }
-
-
-/**
- * Recursively builds the node tree by searching for all possible moves
- * @param side  Side that is making the move at this level
- * @param depth How deep the tree should be
- */
-/*
-void BoardNode::buildTree(bool side, int depth){
-    if(depth == 0){
-        isBottom = true;
-        return;
-    }
-    for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
-            Move* move = new Move(i, j);
-            if(board->checkMove(move, side)){
-                Board* b = board->copy();
-                b->doMove(move, side);
-                children.push_back(new BoardNode(b, move));
-            }
-            else{
-                delete move;
-            }
-        }
-    }
-    if(children.size() == 0){
-        isBottom = true;
-        return;
-    }
-    bool newSide = !side;
-    for(int i = 0; i < (int)children.size(); i++){
-        children[i]->buildTree(newSide, depth - 1);
-    }
-}
-*/
-
-/**
- * Recursively finds the best score for each path
- * @param  heuristic Heuristic function that defines the score for each position
- * @param  side      The side thet you are playing on. Passed into heuristic function.
- * @param  isMaxing  True if this node layer is meant to maximize the value, false if minimize.
- * @return           Float of the "best" score for this parent node
- */
-/*
-float BoardNode::getNodeBestScore(float (*heuristic)(Board*, bool), bool side, bool isMaxing){
-    if(isBottom){
-        return (*heuristic)(board, side);
-    }
-    float bestScore = children[0]->getNodeBestScore(heuristic, side, !isMaxing);
-    for(int i = 1; i < (int)children.size(); i++){
-        float tempScore = children[i]->getNodeBestScore(heuristic, side, !isMaxing);
-        if(isMaxing ^ (tempScore < bestScore)){
-            bestScore = tempScore;
-        }
-    }
-    return bestScore;
-}
-*/
