@@ -146,7 +146,7 @@ void Board::doMove(Move *m, bool side) {
     set(side, X, Y);
 }
 
-// Check if an x, y is a corner, assuming the x,y is a valid input. 
+// Check if an x, y is a corner, assuming the x,y is a valid input.
 bool Board::isCorner(int x, int y) {
     if ((x % 7 == 0) && (y*8 % 7 == 0)) {
         return true;
@@ -163,11 +163,11 @@ bool Board::isStable(int x, int y, bool side) {
         return true;
     }
     // Check next to side and a corner
-    if ((x+1 > 7 || y+1 > 7 || x-1 < 0 || y-1 < 0) 
+    if ((x+1 > 7 || y+1 > 7 || x-1 < 0 || y-1 < 0)
         && ((isCorner(x+1,y) && get(side, x+1, y))
         || (isCorner(x-1,y) && get(side, x-1, y))
-        || (isCorner(x,y+1) && get(side, x, y+1)) 
-        || (isCorner(x, y-1) && get(side, x, y-1))))  
+        || (isCorner(x,y+1) && get(side, x, y+1))
+        || (isCorner(x, y-1) && get(side, x, y-1))))
         {
             return true;
     }
@@ -203,13 +203,13 @@ bool Board::isStable(int x, int y, bool side) {
 //     if (next_to >= 4) {
 //         return true;
 //     }
-    
+
     return false;
 }
-    
+
 // Count the number of stable tiles and scale for the Heuristic
 int Board::countStableHeuristic(bool side) {
-    int value;
+    int value = 0;
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
             bool stable = isStable(i,j,side);

@@ -11,12 +11,13 @@ using namespace std;
 class BoardNode{
 
 private:
-    Move* move;
-    Board* board;
+
     vector<BoardNode*> children;
     bool side;
 
 public:
+    Move* move;
+    Board* board;
     BoardNode(Board* board, bool ourSide);
     BoardNode(Board* b, Move* m, bool s);
     ~BoardNode();

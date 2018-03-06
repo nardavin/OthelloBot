@@ -14,16 +14,15 @@ BoardNode::BoardNode(Board* parentBoard, Move* m, bool s){
 
 }
 
-BoardNode::BoardNode(Board* board, bool ourSide){
-    BoardNode(board, nullptr, !ourSide);
+BoardNode::BoardNode(Board* board, bool ourSide) : BoardNode(board, nullptr, !ourSide){
 }
 
 /**
  * Deconstructs node
  */
 BoardNode::~BoardNode(){
-    delete board;
-    delete move;
+    if (board) delete board;
+    if (move) delete move;
     for(int i = 0; i < (int)children.size(); i++){
         delete children[i];
     }
@@ -86,6 +85,7 @@ float BoardNode::searchTree(int depth, float alpha, float beta,
  * @return           The most optimal move based on the heuristic function
  */
 Move* BoardNode::getBestChoice(Board* board, int depth, float (*heuristic)(Board*, bool), bool ourSide){
+    //cout << (move == nullptr) << endl;
     vector<Move*> possibleMoves = board->possibleMoves(ourSide);
     if(possibleMoves.size() == 0){
         return nullptr;

@@ -49,7 +49,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-        moveToMake = minimax(othelloBoard, 4, msLeft);
+        moveToMake = minimax(othelloBoard, 5, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
@@ -99,6 +99,8 @@ float heuristic(Board* board, bool side) {
     int posMovesOther = otherMoves.size();
     for(int i = 0; i < (int)moves.size(); i++){
         delete moves[i];
+    }
+    for(int i = 0; i < (int)otherMoves.size(); i++){
         delete otherMoves[i];
     }
     moves.clear();
@@ -118,11 +120,12 @@ float heuristic(Board* board, bool side) {
     // This can be optimised VERY easily by keeping track of which ones are stable on the board
     // Also we should keep a board variable that keeps track of
     // stability so we don't compute it every heuristic
-
     return value;
 }
 
 Move *Player::minimax(Board* board, int depth, int msLeft){
     BoardNode* root = new BoardNode(othelloBoard, ourSide);
-    return root->getBestChoice(board, depth, &heuristic, ourSide);
+    Move* test = root->getBestChoice(board, depth, &heuristic, ourSide);
+    delete root;
+    return test;
 }
