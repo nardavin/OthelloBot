@@ -14,7 +14,13 @@ BoardNode::BoardNode(Board* parentBoard, Move* m, bool s){
 
 }
 
-BoardNode::BoardNode(Board* board, bool ourSide) : BoardNode(board, nullptr, !ourSide){
+/**
+ * Constructs a base node
+ * @param board   Current board for the game
+ * @param ourSide The side that our player is on
+ */
+BoardNode::BoardNode(Board* board, bool ourSide) :
+                        BoardNode(board, nullptr, !ourSide){
 }
 
 /**
@@ -39,13 +45,14 @@ Move BoardNode::getMove(){
 
 
 /**
- * [BoardNode::searchTree description]
- * @param  depth     [description]
- * @param  alpha     [description]
- * @param  beta      [description]
- * @param  heuristic [description]
- * @param  ourSide   [description]
- * @return           [description]
+ * Searches a tree using minimax and A/B pruning to find the heuristic score
+ * for this board
+ * @param  depth     How deep to search the node tree
+ * @param  alpha     The highest overall score found so far
+ * @param  beta      The opponent's best overall score found so far
+ * @param  heuristic Heuristic function that defines the score of a board
+ * @param  ourSide   The side that our player is on
+ * @return           Score of the board accounting for future possible moves
  */
 float BoardNode::searchTree(int depth, float alpha, float beta,
             float (*heuristic)(Board*, bool), bool ourSide){
@@ -79,13 +86,13 @@ float BoardNode::searchTree(int depth, float alpha, float beta,
 }
 
 /**
- * Finds the best move to make this round
+ * Finds the best move to make this round using minimax and A/B pruning
+ * @param  depth     Depth to search in the node tree
  * @param  heuristic Heuristic function that defines the score for each position
- * @param  side      The side thet you are playing on. Passed into heuristic function.
+ * @param  ourSide   The side thet you are playing on. Passed into heuristic function.
  * @return           The most optimal move based on the heuristic function
  */
-Move* BoardNode::getBestChoice(Board* board, int depth, float (*heuristic)(Board*, bool), bool ourSide){
-    //cout << (move == nullptr) << endl;
+Move* BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool ourSide){
     vector<Move*> possibleMoves = board->possibleMoves(ourSide);
     if(possibleMoves.size() == 0){
         return nullptr;

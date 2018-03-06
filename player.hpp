@@ -9,7 +9,7 @@ using namespace std;
 
 class Player {
 private:
-    Move *minimax(Board* board, int depth, int msLeft);
+    Move *minimax(float (*heuristic)(Board*, bool), int depth, int msLeft);
     Board* othelloBoard;
     bool ourSide;
     bool otherSide;

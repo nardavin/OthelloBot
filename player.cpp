@@ -26,37 +26,6 @@ void Player::setBoard(Board* b){
     othelloBoard = b;
 }
 
-/*
- * Compute the next move given the opponent's last move. Your AI is
- * expected to keep track of the board on its own. If this is the first move,
- * or if the opponent passed on the last move, then opponentsMove will be
- * nullptr.
- *
- * msLeft represents the time your AI has left for the total game, in
- * milliseconds. doMove() must take no longer than msLeft, or your AI will
- * be disqualified! An msLeft value of -1 indicates no time limit.
- *
- * The move returned must be legal; if there are no valid moves for your side,
- * return nullptr.
- */
-Move *Player::doMove(Move *opponentsMove, int msLeft) {
-
-    othelloBoard->doMove(opponentsMove, otherSide);
-
-    Move* moveToMake;
-
-    if (testingMinimax == true) {
-        moveToMake = minimax(othelloBoard, 2, msLeft);
-    }
-    else {
-        moveToMake = minimax(othelloBoard, 5, msLeft);
-    }
-
-    othelloBoard->doMove(moveToMake, ourSide);
-
-    return moveToMake;
-}
-
 float naiveHeuristic(Board* board, bool side) {
     // Sample total score heuristic
     float value = board->countWhite() - board->countBlack();
@@ -123,9 +92,40 @@ float heuristic(Board* board, bool side) {
     return value;
 }
 
-Move *Player::minimax(Board* board, int depth, int msLeft){
+/*
+ * Compute the next move given the opponent's last move. Your AI is
+ * expected to keep track of the board on its own. If this is the first move,
+ * or if the opponent passed on the last move, then opponentsMove will be
+ * nullptr.
+ *
+ * msLeft represents the time your AI has left for the total game, in
+ * milliseconds. doMove() must take no longer than msLeft, or your AI will
+ * be disqualified! An msLeft value of -1 indicates no time limit.
+ *
+ * The move returned must be legal; if there are no valid moves for your side,
+ * return nullptr.
+ */
+Move *Player::doMove(Move *opponentsMove, int msLeft) {
+
+    othelloBoard->doMove(opponentsMove, otherSide);
+
+    Move* moveToMake;
+
+    if (testingMinimax == true) {
+        moveToMake = minimax(&naiveHeuristic, 2, msLeft);
+    }
+    else {
+        moveToMake = minimax(&heuristic, 5, msLeft);
+    }
+
+    othelloBoard->doMove(moveToMake, ourSide);
+
+    return moveToMake;
+}
+
+Move *Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
     BoardNode* root = new BoardNode(othelloBoard, ourSide);
-    Move* test = root->getBestChoice(board, depth, &heuristic, ourSide);
+    Move* test = root->getBestChoice(depth, heuristic, ourSide);
     delete root;
     return test;
 }

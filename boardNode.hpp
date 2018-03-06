@@ -11,20 +11,19 @@ using namespace std;
 class BoardNode{
 
 private:
-
-    vector<BoardNode*> children;
-    bool side;
-
-public:
     Move* move;
     Board* board;
+    vector<BoardNode*> children;
+    bool side;
+public:
     BoardNode(Board* board, bool ourSide);
     BoardNode(Board* b, Move* m, bool s);
     ~BoardNode();
-    Move* getBestChoice(Board* board, int depth, float (*heuristic)(Board*, bool), bool ourSide);
+    Move* getBestChoice(int depth, float (*heuristic)(Board*, bool), bool ourSide);
     float searchTree(int depth, float alpha, float beta,
                 float (*heuristic)(Board*, bool), bool ourSide);
     Move getMove();
+
 };
 
 #endif
