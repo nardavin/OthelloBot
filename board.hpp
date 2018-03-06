@@ -13,7 +13,7 @@ private:
     bitset<64> taken;
 
     bool occupied(int x, int y);
-    void set(Side side, int x, int y);
+    void set(bool side, int x, int y);
     bool onBoard(int x, int y);
     int parity;
 
@@ -22,16 +22,16 @@ public:
     ~Board();
     Board *copy();
 
-    int countStableHeuristic(Side side);
-    vector<Move*> possibleMoves(Side side);
+    int countStableHeuristic(bool side);
+    vector<Move*> possibleMoves(bool side);
     int getParity();
-    
+
     bool isDone();
-    bool get(Side side, int x, int y);
-    bool hasMoves(Side side);
-    bool checkMove(Move *m, Side side);
-    void doMove(Move *m, Side side);
-    int count(Side side);
+    bool get(bool side, int x, int y);
+    bool hasMoves(bool side);
+    bool checkMove(Move *m, bool side);
+    void doMove(Move *m, bool side);
+    int count(bool side);
     int countBlack();
     int countWhite();
 

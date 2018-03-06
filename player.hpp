@@ -11,10 +11,10 @@ class Player {
 private:
     Move *minimax(Board* board, int depth, int msLeft);
     Board* othelloBoard;
-    Side ourSide;
-    Side otherSide;
+    bool ourSide;
+    bool otherSide;
 public:
-    Player(Side side);
+    Player(bool side);
     ~Player();
     void setBoard(Board* b);
     Move *doMove(Move *opponentsMove, int msLeft);

@@ -5,14 +5,14 @@
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
  * within 30 seconds.
  */
-Player::Player(Side side) {
+Player::Player(bool side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
 
     othelloBoard = new Board();
 
     ourSide = side;
-    otherSide = (side == BLACK) ? WHITE : BLACK;
+    otherSide = !side;
 }
 
 /*
@@ -49,7 +49,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-        moveToMake = minimax(othelloBoard, 6, msLeft);
+        moveToMake = minimax(othelloBoard, 10, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
@@ -57,7 +57,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     return moveToMake;
 }
 
-float naiveHeuristic(Board* board, Side side) {
+float naiveHeuristic(Board* board, bool side) {
     // Sample total score heuristic
     float value = board->countWhite() - board->countBlack();
     if (side == BLACK) {
@@ -66,12 +66,12 @@ float naiveHeuristic(Board* board, Side side) {
     return value;
 }
 
-float heuristic(Board* board, Side side) {
-    Side otherSide = (side == BLACK) ? WHITE:BLACK;
-    float value = (board->countWhite() - board->countBlack());
+float heuristic(Board* board, bool side) {
+    bool otherSide = !side;
+    float value = (board->countWhite() - board->countBlack())*0.5;
     if (side == BLACK) {
         value *= -1;
-        
+
         if (board->getParity() == 1) {
             // this value is arbitrary should be tuned
             value += 1;
@@ -80,52 +80,52 @@ float heuristic(Board* board, Side side) {
             value -= 1;
         }
     }
-    
+
     else {
         if (board->getParity() == 0) {
-            value += 1; 
+            value += 1;
         } else {
             value -= 1;
         }
     }
-    
+
     // Maximise stable tiles
     //value += board->countStableHeuristic(side)*2;
-    
+
     // Maximise possible moves, minimise opponents moves
     int posMoves = board->possibleMoves(side).size();
     value += posMoves*2;
     value -= posMoves*2;
-    
+
     // minimise frontier?
-    
+
     // These values are super random, maybe write a script to run hundreds of games with different parameters
     // and find the best ones?
 
     if (board->get(side, 0, 0) == true) {
-        value += 100;
+        value += 10;
     }
     else if (board->get(side, 7, 0) == true) {
-        value += 100;
+        value += 10;
     }
     else if (board->get(side, 0, 7) == true) {
-        value += 100;
+        value += 10;
     }
     else if (board->get(side, 7, 7) == true) {
-        value += 100;
+        value += 10;
     }
 
     if (board->get(otherSide, 0,0)) {
-        value -= 100;
+        value -= 10;
     }
     else if(board->get(otherSide, 7,0)) {
-        value -= 100;
+        value -= 10;
     }
     else if(board->get(otherSide, 7,7)) {
-        value -= 100;
+        value -= 10;
     }
     else if(board->get(otherSide, 0,7)) {
-        value -= 100;
+        value -= 10;
     }
 
 
@@ -133,8 +133,6 @@ float heuristic(Board* board, Side side) {
 }
 
 Move *Player::minimax(Board* board, int depth, int msLeft){
-    BoardNode root = BoardNode(othelloBoard->copy(), nullptr);
-    root.buildTree(ourSide, depth);
-    //return root.getBestChoice(&naiveHeuristic, ourSide);
-    return root.getBestChoice(&heuristic, ourSide);
+    BoardNode* root = new BoardNode(othelloBoard, ourSide);
+    return root->getBestChoice(board, depth, &heuristic, ourSide);
 }

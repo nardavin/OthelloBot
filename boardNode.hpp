@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <limits>
 #include "common.hpp"
 #include "board.hpp"
 using namespace std;
@@ -12,16 +13,19 @@ class BoardNode{
 private:
     Move* move;
     vector<BoardNode*> children;
-    bool isBottom;
-    float score;
-    float getNodeBestScore(float (*heuristic)(Board*, Side), Side side, bool isMaxing);
-    
+    bool side;
+    //float score;
+    //float getNodeBestScore(float (*heuristic)(Board*, bool), bool side, bool isMaxing);
+
 public:
     Board* board;
-    BoardNode(Board* b, Move* m);
+    BoardNode(Board* board, bool ourSide);
+    BoardNode(Board* b, Move* m, bool s);
     ~BoardNode();
-    void buildTree(Side side, int depth);
-    Move* getBestChoice(float (*heuristic)(Board*, Side), Side side);
+    //void buildTree(bool side, int depth);
+    Move* getBestChoice(Board* board, int depth, float (*heuristic)(Board*, bool), bool ourSide);
+    float searchTree(int depth, float alpha, float beta,
+                float (*heuristic)(Board*, bool), bool ourSide);
     Move getMove();
 };
 

@@ -33,11 +33,11 @@ bool Board::occupied(int x, int y) {
     return taken[x + 8*y];
 }
 
-bool Board::get(Side side, int x, int y) {
+bool Board::get(bool side, int x, int y) {
     return occupied(x, y) && (black[x + 8*y] == (side == BLACK));
 }
 
-void Board::set(Side side, int x, int y) {
+void Board::set(bool side, int x, int y) {
     taken.set(x + 8*y);
     black.set(x + 8*y, side == BLACK);
 }
@@ -58,7 +58,7 @@ bool Board::isDone() {
 /*
  * Returns true if there are legal moves for the given side.
  */
-bool Board::hasMoves(Side side) {
+bool Board::hasMoves(bool side) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             Move move(i, j);
@@ -71,7 +71,7 @@ bool Board::hasMoves(Side side) {
 /*
  * Returns true if a move is legal for the given side; false otherwise.
  */
-bool Board::checkMove(Move *m, Side side) {
+bool Board::checkMove(Move *m, bool side) {
     // Passing is only legal if you have no moves.
     if (m == nullptr) return !hasMoves(side);
 
@@ -81,7 +81,7 @@ bool Board::checkMove(Move *m, Side side) {
     // Make sure the square hasn't already been taken.
     if (occupied(X, Y)) return false;
 
-    Side other = (side == BLACK) ? WHITE : BLACK;
+    bool other = !side;
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             if (dy == 0 && dx == 0) continue;
@@ -105,7 +105,7 @@ bool Board::checkMove(Move *m, Side side) {
 /*
  * Modifies the board to reflect the specified move.
  */
-void Board::doMove(Move *m, Side side) {
+void Board::doMove(Move *m, bool side) {
     // A nullptr move means pass.
     if (m == nullptr){
         parity += 1;
@@ -118,7 +118,7 @@ void Board::doMove(Move *m, Side side) {
 
     int X = m->getX();
     int Y = m->getY();
-    Side other = (side == BLACK) ? WHITE : BLACK;
+    bool other = !side;
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             if (dy == 0 && dx == 0) continue;
@@ -147,20 +147,23 @@ void Board::doMove(Move *m, Side side) {
 }
 
 // Count the number of stable tiles and scale for the Heuristic
-int Board::countStableHeuristic(Side side) {
+int Board::countStableHeuristic(bool side) {
     // count?
     return 0;
 }
 
 // Find possible moves
-// MEMORY LEAK HERE FIX IT
-vector<Move*> Board::possibleMoves(Side side) {
+// MEMORY LEAK SHOULD BE FIXED
+vector<Move*> Board::possibleMoves(bool side) {
     vector<Move*> moves;
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
             Move* move = new Move(i, j);
             if(checkMove(move, side)) {
                 moves.push_back(move);
+            }
+            else{
+                delete move;
             }
         }
     }
@@ -174,7 +177,7 @@ int Board::getParity() {
 /*
  * Current count of given side's stones.
  */
-int Board::count(Side side) {
+int Board::count(bool side) {
     return (side == BLACK) ? countBlack() : countWhite();
 }
 

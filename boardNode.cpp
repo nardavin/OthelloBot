@@ -1,19 +1,21 @@
 #include "boardNode.hpp"
 
-int nodes = 0;
-
 /**
  * Constructs node
  * @param b Board to load into mode
- * @param m Move made to ged to this node from last
+ * @param m Move made to get to this node from last
  */
-BoardNode::BoardNode(Board* b, Move* m){
-    board = b;
+BoardNode::BoardNode(Board* parentBoard, Move* m, bool s){
+    board = parentBoard->copy();
     move = m;
+    side = s;
+    board->doMove(move, side);
     children = vector<BoardNode*>();
-    isBottom = false;
-    nodes ++;
-    cerr << nodes << endl;
+
+}
+
+BoardNode::BoardNode(Board* board, bool ourSide){
+    BoardNode(board, nullptr, !ourSide);
 }
 
 /**
@@ -21,28 +23,103 @@ BoardNode::BoardNode(Board* b, Move* m){
  */
 BoardNode::~BoardNode(){
     delete board;
-    delete move;
+    if (move) delete move;
     for(int i = 0; i < (int)children.size(); i++){
         delete children[i];
     }
     children.clear();
-    nodes --;
 }
 
 /**
  * Gets the move that was used to get from the previous board to this one
- * @return Move that was used to get from perbious board to this one
+ * @return Move that was used to get from previous board to this one
  */
+
 Move BoardNode::getMove(){
     return *move;
 }
+
+
+/**
+ * [BoardNode::searchTree description]
+ * @param  depth     [description]
+ * @param  alpha     [description]
+ * @param  beta      [description]
+ * @param  heuristic [description]
+ * @param  ourSide   [description]
+ * @return           [description]
+ */
+float BoardNode::searchTree(int depth, float alpha, float beta,
+            float (*heuristic)(Board*, bool), bool ourSide){
+    if(depth == 0){
+        return (*heuristic)(board, ourSide);
+    }
+    bool movingSide = !side;
+    bool isMaxing = (ourSide == movingSide);
+    vector<Move*> possibleMoves = board->possibleMoves(movingSide);
+    if(possibleMoves.size() == 0){
+        return (*heuristic)(board, ourSide);
+    }
+    for(int i = 0; i < (int)possibleMoves.size(); i++){
+        children.push_back(new BoardNode(board, possibleMoves[i], movingSide));
+    }
+    for(int i = 0; i < (int)children.size(); i++){
+        float score = children[i]->searchTree(depth - 1, alpha, beta, heuristic, ourSide);
+        if(isMaxing){
+            alpha = max(alpha, score);
+        }
+        else{
+            beta = min(beta, score);
+        }
+        if(alpha >= beta) break;
+    }
+    for(int i = 0; i < (int)children.size(); i++){
+        delete children[i];
+    }
+    children.clear();
+    return (isMaxing) ? alpha : beta;
+}
+
+/**
+ * Finds the best move to make this round
+ * @param  heuristic Heuristic function that defines the score for each position
+ * @param  side      The side thet you are playing on. Passed into heuristic function.
+ * @return           The most optimal move based on the heuristic function
+ */
+
+Move* BoardNode::getBestChoice(Board* board, int depth, float (*heuristic)(Board*, bool), bool ourSide){
+    vector<Move*> possibleMoves = board->possibleMoves(ourSide);
+    if(possibleMoves.size() == 0){
+        return nullptr;
+    }
+    for(int i = 0; i < (int)possibleMoves.size(); i++){
+        children.push_back(new BoardNode(board, possibleMoves[i], ourSide));
+    }
+    float alpha = -numeric_limits<float>::max();
+    float beta = numeric_limits<float>::max();
+    Move ret = Move(0, 0);
+    for(int i = 0; i < (int)children.size(); i++){
+        float score = children[i]->searchTree(depth - 1, alpha, beta, heuristic, ourSide);
+        if(score > alpha){
+            alpha = score;
+            ret = children[i]->getMove();
+        }
+    }
+    for(int i = 0; i < (int)children.size(); i++){
+        delete children[i];
+    }
+    children.clear();
+    return new Move(ret.getX(), ret.getY());
+}
+
 
 /**
  * Recursively builds the node tree by searching for all possible moves
  * @param side  Side that is making the move at this level
  * @param depth How deep the tree should be
  */
-void BoardNode::buildTree(Side side, int depth){
+/*
+void BoardNode::buildTree(bool side, int depth){
     if(depth == 0){
         isBottom = true;
         return;
@@ -64,11 +141,12 @@ void BoardNode::buildTree(Side side, int depth){
         isBottom = true;
         return;
     }
-    Side newSide = (side == BLACK) ? WHITE : BLACK;
+    bool newSide = !side;
     for(int i = 0; i < (int)children.size(); i++){
         children[i]->buildTree(newSide, depth - 1);
     }
 }
+*/
 
 /**
  * Recursively finds the best score for each path
@@ -77,7 +155,8 @@ void BoardNode::buildTree(Side side, int depth){
  * @param  isMaxing  True if this node layer is meant to maximize the value, false if minimize.
  * @return           Float of the "best" score for this parent node
  */
-float BoardNode::getNodeBestScore(float (*heuristic)(Board*, Side), Side side, bool isMaxing){
+/*
+float BoardNode::getNodeBestScore(float (*heuristic)(Board*, bool), bool side, bool isMaxing){
     if(isBottom){
         return (*heuristic)(board, side);
     }
@@ -90,25 +169,4 @@ float BoardNode::getNodeBestScore(float (*heuristic)(Board*, Side), Side side, b
     }
     return bestScore;
 }
-
-/**
- * Finds the best move to make this round
- * @param  heuristic Heuristic function that defines the score for each position
- * @param  side      The side thet you are playing on. Passed into heuristic function.
- * @return           The most optimal move based on the heuristic function
- */
-Move* BoardNode::getBestChoice(float (*heuristic)(Board*, Side), Side side){
-    if(children.size() == 0){
-        return nullptr;
-    }
-    Move bestMove = children[0]->getMove();
-    float bestScore = children[0]->getNodeBestScore(heuristic, side, false);
-    for(int i = 1; i < (int)children.size(); i++){
-        float tempScore = children[i]->getNodeBestScore(heuristic, side, false);
-        if(tempScore > bestScore){
-            bestScore = tempScore;
-            bestMove = children[i]->getMove();
-        }
-    }
-    return new Move(bestMove.x, bestMove.y);
-}
+*/
