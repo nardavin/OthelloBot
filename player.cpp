@@ -49,11 +49,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-<<<<<<< HEAD
-        moveToMake = minimax(othelloBoard, 6, msLeft);
-=======
         moveToMake = minimax(othelloBoard, 4, msLeft);
->>>>>>> 9bbae0a870d79f9beec44a61b2b90620e536e7b1
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
