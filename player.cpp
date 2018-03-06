@@ -49,7 +49,11 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
+<<<<<<< HEAD
         moveToMake = minimax(othelloBoard, 6, msLeft);
+=======
+        moveToMake = minimax(othelloBoard, 4, msLeft);
+>>>>>>> 9bbae0a870d79f9beec44a61b2b90620e536e7b1
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
@@ -94,45 +98,30 @@ float heuristic(Board* board, bool side) {
 
     // Maximise possible moves, minimise opponents moves
     vector<Move*> moves = board->possibleMoves(side);
+    vector<Move*> otherMoves = board->possibleMoves(otherSide);
     int posMoves = moves.size();
+    int posMovesOther = otherMoves.size();
     for(int i = 0; i < (int)moves.size(); i++){
         delete moves[i];
+        delete otherMoves[i];
     }
     moves.clear();
     value += posMoves*2;
-    value -= posMoves*2;
+    value -= posMovesOther*2;
 
     // minimise frontier?
 
     // These values are super random, maybe write a script to run hundreds of games with different parameters
     // and find the best ones?
 
-    if (board->get(side, 0, 0) == true) {
-        value += 10;
-    }
-    else if (board->get(side, 7, 0) == true) {
-        value += 10;
-    }
-    else if (board->get(side, 0, 7) == true) {
-        value += 10;
-    }
-    else if (board->get(side, 7, 7) == true) {
-        value += 10;
-    }
+    // Maximise stable values
+    value += board->countStableHeuristic(side);
+    value -= board->countStableHeuristic(otherSide);
 
-    if (board->get(otherSide, 0,0)) {
-        value -= 10;
-    }
-    else if(board->get(otherSide, 7,0)) {
-        value -= 10;
-    }
-    else if(board->get(otherSide, 7,7)) {
-        value -= 10;
-    }
-    else if(board->get(otherSide, 0,7)) {
-        value -= 10;
-    }
-
+    // Hardcode in that it is bad to have a square next to a corner without having that corner
+    // This can be optimised VERY easily by keeping track of which ones are stable on the board
+    // Also we should keep a board variable that keeps track of
+    // stability so we don't compute it every heuristic
 
     return value;
 }

@@ -25,6 +25,8 @@ public:
     int countStableHeuristic(bool side);
     vector<Move*> possibleMoves(bool side);
     int getParity();
+    bool isCorner(int x, int y);
+    bool isStable(int x, int y, bool side);
 
     bool isDone();
     bool get(bool side, int x, int y);
