@@ -49,7 +49,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(othelloBoard, 2, msLeft);
     }
     else {
-        moveToMake = minimax(othelloBoard, 10, msLeft);
+        moveToMake = minimax(othelloBoard, 4, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
@@ -93,41 +93,26 @@ float heuristic(Board* board, bool side) {
     //value += board->countStableHeuristic(side)*2;
 
     // Maximise possible moves, minimise opponents moves
+    // This will be re-done with a bitboard. Algorithm is already established to make this very
+    // very fast but not implemented. 
     int posMoves = board->possibleMoves(side).size();
+    int posMovesOther = board->possibleMoves(otherSide).size();
     value += posMoves*2;
-    value -= posMoves*2;
+    value -= posMovesOther*2;
 
     // minimise frontier?
 
     // These values are super random, maybe write a script to run hundreds of games with different parameters
     // and find the best ones?
 
-    if (board->get(side, 0, 0) == true) {
-        value += 10;
-    }
-    else if (board->get(side, 7, 0) == true) {
-        value += 10;
-    }
-    else if (board->get(side, 0, 7) == true) {
-        value += 10;
-    }
-    else if (board->get(side, 7, 7) == true) {
-        value += 10;
-    }
-
-    if (board->get(otherSide, 0,0)) {
-        value -= 10;
-    }
-    else if(board->get(otherSide, 7,0)) {
-        value -= 10;
-    }
-    else if(board->get(otherSide, 7,7)) {
-        value -= 10;
-    }
-    else if(board->get(otherSide, 0,7)) {
-        value -= 10;
-    }
-
+    // Maximise stable values
+    value += board->countStableHeuristic(side);
+    value -= board->countStableHeuristic(otherSide);
+    
+    // Hardcode in that it is bad to have a square next to a corner without having that corner
+    // This can be optimised VERY easily by keeping track of which ones are stable on the board
+    // Also we should keep a board variable that keeps track of
+    // stability so we don't compute it every heuristic
 
     return value;
 }

@@ -146,14 +146,85 @@ void Board::doMove(Move *m, bool side) {
     set(side, X, Y);
 }
 
+// Check if an x, y is a corner, assuming the x,y is a valid input. 
+bool Board::isCorner(int x, int y) {
+    if ((x % 7 == 0) && (y*8 % 7 == 0)) {
+        return true;
+    }
+    return false;
+}
+
+// checks if a position x,y for a side is stable
+// necessary conditions are either that it is a corner,
+// That it is next to a side and a corner
+// Or that it is next to 4 stable pieces
+bool Board::isStable(int x, int y, bool side) {
+    if (isCorner(x,y)) {
+        return true;
+    }
+    // Check next to side and a corner
+    if ((x+1 > 7 || y+1 > 7 || x-1 < 0 || y-1 < 0) 
+        && ((isCorner(x+1,y) && get(side, x+1, y))
+        || (isCorner(x-1,y) && get(side, x-1, y))
+        || (isCorner(x,y+1) && get(side, x, y+1)) 
+        || (isCorner(x, y-1) && get(side, x, y-1))))  
+        {
+            return true;
+    }
+
+    // Also if it is next to 4 stable pieces this applies, but it is expensive to compute
+    // This can be optimised VERY easily by keeping track of which ones are stable on the board
+    // Also we should keep a board variable that keeps track of stability so we don't compute it every heuristic
+//     int next_to = 0;
+//     if (isStable(x-1, y-1, side) && onBoard(x-1, y-1)) {
+//         next_to += 1;
+//     }
+//     if (isStable(x, y-1, side) && onBoard(x, y-1)) {
+//         next_to += 1;
+//     }
+//     if (isStable(x+1, y-1, side) && onBoard(x+1, y-1)) {
+//         next_to += 1;
+//     }
+//     if (isStable(x-1, y, side) && onBoard(x-1, y)) {
+//         next_to += 1;
+//     }
+//     if (isStable(x+1, y, side) && onBoard(x+1, y)) {
+//         next_to += 1;
+//     }
+//     if (isStable(x-1, y+1, side) && onBoard(x-1, y+1)) {
+//         next_to += 1;
+//     }
+//     if (isStable(x, y+1, side) && onBoard(x, y+1)) {
+//         next_to += 1;
+//     }
+//     if (isStable(x+1, y+1, side) && onBoard(x+1, y+1)) {
+//         next_to += 1;
+//     }
+//     if (next_to >= 4) {
+//         return true;
+//     }
+    
+    return false;
+}
+    
 // Count the number of stable tiles and scale for the Heuristic
 int Board::countStableHeuristic(bool side) {
-    // count?
-    return 0;
+    int value;
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            bool stable = isStable(i,j,side);
+            if (stable && get(side, i, j) && isCorner(i,j)) {
+                value += 10;
+            }
+            else if (stable && get(side, i, j)) {
+                value += 3;
+            }
+        }
+    }
+    return value;
 }
 
 // Find possible moves
-// MEMORY LEAK SHOULD BE FIXED
 vector<Move*> Board::possibleMoves(bool side) {
     vector<Move*> moves;
     for(int i = 0; i < 8; i++){
