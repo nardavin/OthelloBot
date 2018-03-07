@@ -115,7 +115,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(&naiveHeuristic, 2, msLeft);
     }
     else {
-        moveToMake = minimax(&heuristic, 5, msLeft);
+        moveToMake = minimax(&heuristic, 4, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
