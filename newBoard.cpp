@@ -199,5 +199,34 @@ void NewBoard::setBoard(char data[]){
             pieces[WHITE].set(POS(i % 8, i / 8));
         }
     }
-
 }
+
+/**
+ * Finds the frontier size for a given size
+ * @param side Side to calculate frontier of
+ * NOTE: Function not tested and cannot be tested until newBoard is integrated into 
+ * the rest of the program. 
+ */
+int NewBoard::getFrontierSize(bool side) {
+    bitset<72> frontier;
+    bitset<72> empty = boardMask ^ (pieces[side] | pieces[!side]);
+
+    for(int i = 0; i < 8; i++){
+        frontier |= (shiftBits(pieces[side], directions[i]) & empty);
+    }
+    
+    return frontier.count();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

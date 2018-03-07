@@ -45,6 +45,7 @@ public:
     bool checkMove(Move *m, bool side);
     void doMove(Move *m, bool side);
     int count(bool side);
+    int getFrontierSize(bool side);
     //int countBlack();
     //int countWhite();
 

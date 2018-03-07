@@ -84,6 +84,10 @@ float heuristic(Board* board, bool side) {
     // Maximise stable values
     value += board->countStableHeuristic(side);
     value -= board->countStableHeuristic(otherSide);
+    
+    // Minimise frontier
+    // value += newBoard->getFrontierSize(side);
+    // value -= newBoard->getFrontierSize(otherSide);
 
     // Hardcode in that it is bad to have a square next to a corner without having that corner
     // This can be optimised VERY easily by keeping track of which ones are stable on the board
@@ -115,7 +119,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(&naiveHeuristic, 2, msLeft);
     }
     else {
-        moveToMake = minimax(&heuristic, 4, msLeft);
+        moveToMake = minimax(&heuristic, 6, msLeft);
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
