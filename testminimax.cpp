@@ -3,10 +3,13 @@
 #include "player.hpp"
 #include "board.hpp"
 #include "boardNode.hpp"
+#include "newBoard.hpp"
 
 // Use this file to test your minimax implementation (2-ply depth, with a
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
+
+
 
     // Create board with example state. You do not necessarily need to use
     // this, but it's provided for convenience.
@@ -20,6 +23,8 @@ int main(int argc, char *argv[]) {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
     };
+
+
     Board *board = new Board();
     board->setBoard(boardData);
 

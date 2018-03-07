@@ -1,179 +1,203 @@
-#include "board.hpp"
+#include "newBoard.hpp"
 
-/*
- * Make a standard 8x8 othello board and initialize it to the standard setup.
+static bitset<72> boardMask = (bitset<72>(0xff7fbfdfeff7fbfdULL) << 8) | bitset<72>(0xfeULL);
+static Direction directions[8] = {NW, N, NE, E, SE, S, SW, W};
+
+/**
+ * Constructs a new board
  */
-Board::Board() {
-    std::bitset<64> black(0x1008000000);
-    std::bitset<64> white(0x2004000000);
+NewBoard::NewBoard(){
+    pieces[WHITE].set(POS(3, 3));
+    pieces[WHITE].set(POS(4, 4));
+    pieces[BLACK].set(POS(3, 4));
+    pieces[BLACK].set(POS(4, 3));
+    isMovesCalc = false;
+    calcSide = BLACK;
 }
 
-/*
- * Destructor for the board.
+/**
+ * Deconstructs a board
  */
-Board::~Board() {
+NewBoard::~NewBoard(){
 }
 
-/*
- * Returns a copy of this board.
+/**
+ * Copies this board
+ * @return Pointer to copy of board
  */
-Board *Board::copy() {
-    Board *newBoard = new Board();
-    newBoard->black = black;
-    newBoard->white = white;
+NewBoard* NewBoard::copy(){
+    NewBoard *newBoard = new NewBoard();
+    newBoard->pieces[WHITE] = pieces[WHITE];
+    newBoard->pieces[BLACK] = pieces[BLACK];
     return newBoard;
 }
 
-bool Board::occupied(int x, int y) {
-    return black[x + 8*y] |= white[x + 8*y];
-}
-
-bool Board::get(Side side, int x, int y) {
-    return occupied(x, y) && (black[x + 8*y] == (side == BLACK));
-}
-
-// Set a position x,y to a Side side (BLACK or WHITE)
-void Board::set(bool side, int x, int y) {
-    side ? white.set(x + 8*y, 1) : black.set(x + 8*y, 1);
-}
-
-// Returns if a position x, y is on the board
-bool Board::onBoard(int x, int y) {
-    return(0 <= x && x < 8 && 0 <= y && y < 8);
-}
-
-
-/*
- * Returns true if the game is finished; false otherwise. The game is finished
- * if neither side has a legal move.
+/**
+ * Prints the current board state. Used for debugging
  */
-bool Board::isDone() {
-    return !(hasMoves(BLACK) || hasMoves(WHITE));
-}
-
-/*
- * Returns true if there are legal moves for the given side.
- */
-bool Board::hasMoves(Side side) {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            Move move(i, j);
-            if (checkMove(&move, side)) return true;
-        }
-    }
-    return false;
-}
-
-/*
- * Returns true if a move is legal for the given side; false otherwise.
- */
-bool Board::checkMove(Move *m, Side side) {
-    // Passing is only legal if you have no moves.
-    if (m == nullptr) return !hasMoves(side);
-
-    int X = m->getX();
-    int Y = m->getY();
-
-    // Make sure the square hasn't already been taken.
-    if (occupied(X, Y)) return false;
-
-    Side other = (side == BLACK) ? WHITE : BLACK;
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            if (dy == 0 && dx == 0) continue;
-
-            // Is there a capture in that direction?
-            int x = X + dx;
-            int y = Y + dy;
-            if (onBoard(x, y) && get(other, x, y)) {
-                do {
-                    x += dx;
-                    y += dy;
-                } while (onBoard(x, y) && get(other, x, y));
-
-                if (onBoard(x, y) && get(side, x, y)) return true;
+void NewBoard::printBoard(){
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){
+            if(pieces[WHITE][POS(x, y)]){
+                cerr << "W";
+            }
+            else if(pieces[BLACK][POS(x, y)]){
+                cerr << "B";
+            }
+            else{
+                cerr << "-";
             }
         }
+        cerr << endl;
     }
-    return false;
+    cerr << endl;
 }
 
-/*
- * Modifies the board to reflect the specified move.
+/**
+ * Shifts a grid of bits in the specified direction
+ * @param bits Grid of bits to shift
+ * @param dir  Direction to shift bits
  */
-void Board::doMove(Move *m, Side side) {
-    // A nullptr move means pass.
+bitset<72> NewBoard::shiftBits(bitset<72> bits, Direction dir){
+    switch(dir){
+        case W:
+        return (bits << 1) & boardMask;
+
+        case NW:
+        return (bits << 10) & boardMask;
+
+        case N:
+        return (bits << 9) & boardMask;
+
+        case NE:
+        return (bits << 8) & boardMask;
+
+        case E:
+        return (bits >> 1) & boardMask;
+
+        case SE:
+        return (bits >> 10) & boardMask;
+
+        case S:
+        return (bits >> 9) & boardMask;
+
+        case SW:
+        return (bits >> 8) & boardMask;
+
+        default:
+        return bits;
+    }
+}
+
+/**
+ * Calculates the possible moves for a given side and stores them in private
+ * variables for later use.
+ * @param side Side to calculate the possible moves for
+ */
+void NewBoard::calcMoves(bool side){
+    calcSide = side;
+    bitset<72> empty = boardMask ^ (pieces[side] | pieces[!side]);
+    for(int i = 0; i < 8; i++){
+        moves[i].reset();
+    }
+    allMoves.reset();
+    for(int i = 0; i < 8; i++){
+        bitset<72> candidates = pieces[!side] & shiftBits(pieces[side], directions[i]);
+        while(!candidates.none()){
+            moves[(i + 4) % 8] |= empty & shiftBits(candidates, directions[i]);
+            allMoves |= empty & shiftBits(candidates, directions[i]);
+            candidates = pieces[!side] & shiftBits(candidates, directions[i]);
+        }
+    }
+    isMovesCalc = true;
+}
+
+/**
+ * Determines whether the specified side has any moves
+ * @param  side Side to check for moves on
+ * @return      True if there are >0 possible moves, false otherwise
+ */
+bool NewBoard::hasMoves(bool side){
+    if(!isMovesCalc || calcSide != side){
+        calcMoves(side);
+    }
+    return !allMoves.none();
+}
+
+/**
+ * Counts the number of moves available to the given side
+ * @param  side Side to check for moves on
+ * @return      Number of available moves
+ */
+int NewBoard::countMoves(bool side){
+    if(!isMovesCalc || calcSide != side){
+        calcMoves(side);
+    }
+    return allMoves.count();
+}
+
+/**
+ * Checks if a certain move is valid for the specified side
+ * @param  m    Move to check
+ * @param  side Side to check the move on
+ * @return      True if move is valid, false otherwise
+ */
+bool NewBoard::checkMove(Move *m, bool side){
+    if(!isMovesCalc || calcSide != side){
+        calcMoves(side);
+    }
+    return allMoves[POS(m->getX(), m->getY())];
+}
+
+/**
+ * Does a given move on the board
+ * @param m    Move to do on the board
+ * @param side Side to perform the move from
+ */
+void NewBoard::doMove(Move *m, bool side){
     if (m == nullptr) return;
-
-    // Ignore if move is invalid.
+    isMovesCalc = false;
     if (!checkMove(m, side)) return;
-    
-    
-    
-    int X = m->getX();
-    int Y = m->getY();
-    Side other = (side == BLACK) ? WHITE : BLACK;
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            if (dy == 0 && dx == 0) continue;
-
-            int x = X;
-            int y = Y;
-            do {
-                x += dx;
-                y += dy;
-            } while (onBoard(x, y) && get(other, x, y));
-
-            if (onBoard(x, y) && get(side, x, y)) {
-                x = X;
-                y = Y;
-                x += dx;
-                y += dy;
-                while (onBoard(x, y) && get(other, x, y)) {
-                    set(side, x, y);
-                    x += dx;
-                    y += dy;
-                }
+    bitset<72> move;
+    move.set(POS(m->getX(), m->getY()));
+    pieces[side].set(POS(m->getX(), m->getY()));
+    for(int i = 0; i < 8; i++){
+        if(!(move & moves[i]).none()){
+            bitset<72> target = shiftBits(move, directions[i]);
+            while((target & pieces[side]).none()){
+                pieces[side] |= target;
+                pieces[!side] ^= target;
+                target = shiftBits(target, directions[i]);
             }
         }
     }
-    set(side, X, Y);
 }
 
-/*
- * Current count of given side's stones.
+/**
+ * Counts the number of pieces on a given side
+ * @param  side Side to check for pieces on
+ * @return      Number of pieces for that side
  */
-int Board::count(Side side) {
-    return (side == BLACK) ? countBlack() : countWhite();
+int NewBoard::count(bool side){
+    return pieces[side].count();
 }
 
-/*
- * Current count of black stones.
+/**
+ * Overrides the board state to match given data. Used for testsuites
+ * @param data Data to change board state to
  */
-int Board::countBlack() {
-    return black.count();
-}
+void NewBoard::setBoard(char data[]){
+    pieces[BLACK].reset();
+    pieces[WHITE].reset();
+    isMovesCalc = false;
 
-/*
- * Current count of white stones.
- */
-int Board::countWhite() {
-    return white.count();
-}
-
-/*
- * Sets the board state given an 8x8 char array where 'w' indicates a white
- * piece and 'b' indicates a black piece. Mainly for testing purposes.
- */
-void Board::setBoard(char data[]) {
-    white.reset();
-    black.reset();
-    for (int i = 0; i < 64; i++) {
-        if (data[i] == 'b') {
-            black.set(i);
-        } 
-        if (data[i] == 'w') {
-            white.set(i);
+    for(int i = 0; i < 64; i++){
+        if(data[i] == 'b'){
+            pieces[BLACK].set(POS(i % 8, i / 8));
+        }
+        else if(data[i] == 'w'){
+            pieces[WHITE].set(POS(i % 8, i / 8));
         }
     }
+
 }
