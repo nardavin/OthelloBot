@@ -9,8 +9,6 @@
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
 
-
-
     // Create board with example state. You do not necessarily need to use
     // this, but it's provided for convenience.
     char boardData[64] = {
@@ -23,24 +21,6 @@ int main(int argc, char *argv[]) {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
     };
-    char boardData2[64] = {
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', 'b', 'w', 'b', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-    };
-    NewBoard test = NewBoard();
-    test.setBoard(boardData2);
-    test.printBoard();
-    vector<Move*> moves = test.possibleMoves(WHITE);
-    for(int i = 0; i < (int)moves.size(); i++){
-        cout << moves[i]->getX() << " " << moves[i]->getY() << endl;
-    }
-
 
     Board *board = new Board();
     board->setBoard(boardData);
