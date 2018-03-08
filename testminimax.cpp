@@ -23,10 +23,28 @@ int main(int argc, char *argv[]) {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
     };
+    char boardData2[64] = {
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', 'b', 'w', 'b', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+    };
+    NewBoard test = NewBoard();
+    test.setBoard(boardData2);
+    test.printBoard();
+    vector<Move*> moves = test.possibleMoves(WHITE);
+    for(int i = 0; i < (int)moves.size(); i++){
+        cout << moves[i]->getX() << " " << moves[i]->getY() << endl;
+    }
 
 
     Board *board = new Board();
     board->setBoard(boardData);
+
 
     // Initialize player as the white player, and set testing_minimax flag.
     Player *player = new Player(WHITE);

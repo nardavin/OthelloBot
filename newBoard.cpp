@@ -136,6 +136,21 @@ int NewBoard::countMoves(bool side){
     return allMoves.count();
 }
 
+vector<Move*> NewBoard::possibleMoves(bool side){
+    if(!isMovesCalc || calcSide != side){
+        calcMoves(side);
+    }
+    vector<Move*> ret = vector<Move*>();
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){
+            if(allMoves[POS(x, y)]){
+                ret.push_back(new Move(x, y));
+            }
+        }
+    }
+    return ret;
+}
+
 /**
  * Checks if a certain move is valid for the specified side
  * @param  m    Move to check
@@ -182,6 +197,10 @@ int NewBoard::count(bool side){
     return pieces[side].count();
 }
 
+bool NewBoard::isDone(){
+    return !(hasMoves(BLACK) || hasMoves(WHITE));
+}
+
 /**
  * Overrides the board state to match given data. Used for testsuites
  * @param data Data to change board state to
@@ -202,31 +221,98 @@ void NewBoard::setBoard(char data[]){
 }
 
 /**
- * Finds the frontier size for a given size
- * @param side Side to calculate frontier of
- * NOTE: Function not tested and cannot be tested until newBoard is integrated into 
- * the rest of the program. 
+ * Finds the frontier size for a given side
+ * @param  side Side to calculate frontier of
+ * @return      Frontier of given side
  */
-int NewBoard::getFrontierSize(bool side) {
+int NewBoard::getFrontierSize(bool side){
     bitset<72> frontier;
     bitset<72> empty = boardMask ^ (pieces[side] | pieces[!side]);
 
     for(int i = 0; i < 8; i++){
         frontier |= (shiftBits(pieces[side], directions[i]) & empty);
     }
-    
+
     return frontier.count();
 }
 
+int NewBoard::countStable(bool side){
+    bitset<72> fullStable;
+    bitset<72> partialStable[4];
+    // Add partial stability to edges/corners
+    // NW/SE
+    partialStable[0] = pieces[side] & (bitset<72>(0xff40A05028140a05) << 8 | bitset<72>(0xfe));
+    // N/S
+    partialStable[1] = pieces[side] & (bitset<72>(0xff00000000000001) << 8 | bitset<72>(0xfe));
+    // NE/SW
+    partialStable[2] = pieces[side] & (bitset<72>(0xff40A05028140a05) << 8 | bitset<72>(0xfe));
+    // E/W
+    partialStable[3] = pieces[side] & (bitset<72>(0x8140a05028140a05) << 8 | bitset<72>(0x02));
 
+    // Add partial stability to pieces in full rows/columns/diagonals
+    // Diagonals NW/SE
+    bitset<72> filter = (bitset<72>(0x0000000000000001) << 8);
+    for(int i = 0; i < 15; i++){
+        if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
+            partialStable[0] |= (filter & pieces[side]);
+        }
+        filter = shiftBits(filter, N) | shiftBits(filter, E);
+    }
+    // Columns N/S
+    filter = (bitset<72>(0x8040201008040201) << 8);
+    for(int i = 0; i < 8; i++){
+        if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
+            partialStable[1] |= (filter & pieces[side]);
+        }
+        filter = shiftBits(filter, E);
+    }
+    // Diagonals NE/SW
+    filter = (bitset<72>(0x8000000000000000) << 8);
+    for(int i = 0; i < 15; i++){
+        if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
+            partialStable[2] |= (filter & pieces[side]);
+        }
+        filter = shiftBits(filter, S) | shiftBits(filter, E);
+    }
+    // Rows E/W
+    filter = (bitset<72>(0xff00000000000000) << 8);
+    for(int i = 0; i < 8; i++){
+        if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
+            partialStable[3] |= (filter & pieces[side]);
+        }
+        filter = shiftBits(filter, S);
+    }
 
+    // Define full stable as intersection of partials
+    fullStable = partialStable[0] & partialStable[1] & partialStable[2] & partialStable[3];
 
+    printBits(partialStable[0]);
+    printBits(partialStable[1]);
+    printBits(partialStable[2]);
+    printBits(partialStable[3]);
+    cerr << "------------" << endl;
 
+    // Loop until no changes are made to find all chained stable pieces
+    bitset<72> updateStable = fullStable;
+    do{
+        fullStable = updateStable;
+        printBits(fullStable);
+        for(int i = 0; i < 4; i++){
+            partialStable[i] |= pieces[side] & shiftBits(fullStable, directions[i]);
+            partialStable[i] |= pieces[side] & shiftBits(fullStable, directions[i+4]);
+        }
+        updateStable = partialStable[0] & partialStable[1] & partialStable[2] & partialStable[3];
+    } while(fullStable != updateStable);
 
+    return fullStable.count();
+}
 
-
-
-
-
-
-
+void NewBoard::printBits(bitset<72> bits){
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){
+            cerr << bits[POS(x, y)];
+        }
+        cerr << endl;
+    }
+    cerr << endl;
+}
