@@ -28,71 +28,28 @@ void Player::setBoard(Board* b){
 
 float naiveHeuristic(Board* board, bool side) {
     // Sample total score heuristic
-    float value = board->countWhite() - board->countBlack();
-    if (side == BLACK) {
-        value *= -1;
-    }
-    return value;
+    return board->count(side) - board->count(!side);
 }
 
-float heuristic(Board* board, bool side) {
-    bool otherSide = !side;
-    float value = (board->countWhite() - board->countBlack())*0.5;
-    if (side == BLACK) {
-        value *= -1;
+float heuristic(Board* board, bool ourSide) {
+    bool theirSide = !ourSide;
+    float numPiecesMult = 0.5;
+    float numMovesMult = 2.0;
+    float numStableMult = 5.0;
+    float frontierSizeMult = 1.0;
 
-        if (board->getParity() == 1) {
-            // this value is arbitrary should be tuned
-            value += 1;
-        }
-        else {
-            value -= 1;
-        }
-    }
+    float value = 0;
 
-    else {
-        if (board->getParity() == 0) {
-            value += 1;
-        } else {
-            value -= 1;
-        }
-    }
+    value += board->count(ourSide) * numPiecesMult;
+    value += board->countMoves(ourSide) * numMovesMult;
+    value += board->countStable(ourSide) * numStableMult;
+    value -= board->getFrontierSize(ourSide) * frontierSizeMult;
 
-    // Maximise stable tiles
-    //value += board->countStableHeuristic(side)*2;
+    value -= board->count(theirSide) * numPiecesMult;
+    value -= board->countMoves(theirSide) * numMovesMult;
+    value -= board->countStable(theirSide) * numStableMult;
+    value += board->getFrontierSize(theirSide) * frontierSizeMult;
 
-    // Maximise possible moves, minimise opponents moves
-    vector<Move*> moves = board->possibleMoves(side);
-    vector<Move*> otherMoves = board->possibleMoves(otherSide);
-    int posMoves = moves.size();
-    int posMovesOther = otherMoves.size();
-    for(int i = 0; i < (int)moves.size(); i++){
-        delete moves[i];
-    }
-    for(int i = 0; i < (int)otherMoves.size(); i++){
-        delete otherMoves[i];
-    }
-    moves.clear();
-    value += posMoves*2;
-    value -= posMovesOther*2;
-
-    // minimise frontier?
-
-    // These values are super random, maybe write a script to run hundreds of games with different parameters
-    // and find the best ones?
-
-    // Maximise stable values
-    value += board->countStableHeuristic(side);
-    value -= board->countStableHeuristic(otherSide);
-    
-    // Minimise frontier
-    // value += newBoard->getFrontierSize(side);
-    // value -= newBoard->getFrontierSize(otherSide);
-
-    // Hardcode in that it is bad to have a square next to a corner without having that corner
-    // This can be optimised VERY easily by keeping track of which ones are stable on the board
-    // Also we should keep a board variable that keeps track of
-    // stability so we don't compute it every heuristic
     return value;
 }
 
@@ -123,7 +80,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     }
 
     othelloBoard->doMove(moveToMake, ourSide);
-
+    othelloBoard->printBoard();
     return moveToMake;
 }
 

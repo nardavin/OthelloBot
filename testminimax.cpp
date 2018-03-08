@@ -3,12 +3,19 @@
 #include "player.hpp"
 #include "board.hpp"
 #include "boardNode.hpp"
-#include "newBoard.hpp"
 
 // Use this file to test your minimax implementation (2-ply depth, with a
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
-
+    Player *black = new Player(BLACK);
+    Player *white = new Player(WHITE);
+    Move *blackMove = nullptr;
+    Move *whiteMove = nullptr;
+    for(int i = 0; i < 32; i++){
+        blackMove = black->doMove(whiteMove, 0);
+        whiteMove = white->doMove(blackMove, 0);
+    }
+    /*
     // Create board with example state. You do not necessarily need to use
     // this, but it's provided for convenience.
     char boardData[64] = {
@@ -49,4 +56,5 @@ int main(int argc, char *argv[]) {
     }
 
     return 0;
+    */
 }

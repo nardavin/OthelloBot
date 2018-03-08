@@ -1,7 +1,7 @@
 CC          = g++
-CFLAGS      = -std=c++11 -Wall -pedantic -ggdb
+CFLAGS      = -std=c++11 -Wall -pedantic -pg
 #CFLAGS = -std=c++11 -Wall -pedantic -O2
-OBJS        = player.o board.o boardNode.o newBoard.o
+OBJS        = player.o board.o boardNode.o
 PLAYERNAME  = sudormrf
 
 all: $(PLAYERNAME) testgame
@@ -13,7 +13,7 @@ testgame: testgame.o
 	$(CC) -o $@ $^
 
 testminimax: $(OBJS) testminimax.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ -pg $^
 
 %.o: %.cpp
 	$(CC) -c $(CFLAGS) -x c++ $< -o $@
@@ -25,6 +25,6 @@ cleanjava:
 	make -C java/ clean
 
 clean:
-	rm -f *.o $(PLAYERNAME) testgame testminimax
+	rm -f *.o $(PLAYERNAME) testgame testminimax gmon.out
 
 .PHONY: java testminimax

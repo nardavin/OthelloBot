@@ -1,284 +1,317 @@
 #include "board.hpp"
 
-/*
- * Make a standard 8x8 othello board and initialize it to the standard setup.
+static bitset<72> boardMask = (bitset<72>(0xff7fbfdfeff7fbfdULL) << 8) | bitset<72>(0xfeULL);
+static Direction directions[8] = {NW, N, NE, E, SE, S, SW, W};
+
+/**
+ * Constructs a new board
  */
-Board::Board() {
-    taken.set(3 + 8 * 3);
-    taken.set(3 + 8 * 4);
-    taken.set(4 + 8 * 3);
-    taken.set(4 + 8 * 4);
-    black.set(4 + 8 * 3);
-    black.set(3 + 8 * 4);
-    parity = 0;
+Board::Board(){
+    pieces[WHITE].set(POS(3, 3));
+    pieces[WHITE].set(POS(4, 4));
+    pieces[BLACK].set(POS(3, 4));
+    pieces[BLACK].set(POS(4, 3));
+    isMovesCalc = false;
+    calcSide = BLACK;
 }
 
-/*
- * Destructor for the board.
+/**
+ * Deconstructs a board
  */
-Board::~Board() {
+Board::~Board(){
 }
 
-/*
- * Returns a copy of this board.
+/**
+ * Copies this board
+ * @return Pointer to copy of board
  */
-Board *Board::copy() {
+Board* Board::copy(){
     Board *newBoard = new Board();
-    newBoard->black = black;
-    newBoard->taken = taken;
+    newBoard->pieces[WHITE] = pieces[WHITE];
+    newBoard->pieces[BLACK] = pieces[BLACK];
+    for(int i = 0; i < 8; i++){
+        newBoard->moves[i] = moves[i];
+    }
+    newBoard->allMoves = allMoves;
+    newBoard->isMovesCalc = isMovesCalc;
+    newBoard->calcSide = calcSide;
     return newBoard;
 }
 
-bool Board::occupied(int x, int y) {
-    return taken[x + 8*y];
-}
-
-bool Board::get(bool side, int x, int y) {
-    return occupied(x, y) && (black[x + 8*y] == (side == BLACK));
-}
-
-void Board::set(bool side, int x, int y) {
-    taken.set(x + 8*y);
-    black.set(x + 8*y, side == BLACK);
-}
-
-bool Board::onBoard(int x, int y) {
-    return(0 <= x && x < 8 && 0 <= y && y < 8);
-}
-
-
-/*
- * Returns true if the game is finished; false otherwise. The game is finished
- * if neither side has a legal move.
+/**
+ * Prints the current board state. Used for debugging
  */
-bool Board::isDone() {
+void Board::printBoard(){
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){
+            if(pieces[WHITE][POS(x, y)]){
+                cerr << "W";
+            }
+            else if(pieces[BLACK][POS(x, y)]){
+                cerr << "B";
+            }
+            else{
+                cerr << "-";
+            }
+        }
+        cerr << endl;
+    }
+    cerr << endl;
+}
+
+/**
+ * Shifts a grid of bits in the specified direction
+ * @param bits Grid of bits to shift
+ * @param dir  Direction to shift bits
+ */
+bitset<72> Board::shiftBits(bitset<72> bits, Direction dir){
+    switch(dir){
+        case W:
+        return (bits << 1) & boardMask;
+
+        case NW:
+        return (bits << 10) & boardMask;
+
+        case N:
+        return (bits << 9) & boardMask;
+
+        case NE:
+        return (bits << 8) & boardMask;
+
+        case E:
+        return (bits >> 1) & boardMask;
+
+        case SE:
+        return (bits >> 10) & boardMask;
+
+        case S:
+        return (bits >> 9) & boardMask;
+
+        case SW:
+        return (bits >> 8) & boardMask;
+
+        default:
+        return bits;
+    }
+}
+
+/**
+ * Calculates the possible moves for a given side and stores them in private
+ * variables for later use.
+ * @param side Side to calculate the possible moves for
+ */
+void Board::calcMoves(bool side){
+    calcSide = side;
+    bitset<72> empty = boardMask ^ (pieces[side] | pieces[!side]);
+    for(int i = 0; i < 8; i++){
+        moves[i].reset();
+    }
+    allMoves.reset();
+    for(int i = 0; i < 8; i++){
+        bitset<72> candidates = pieces[!side] & shiftBits(pieces[side], directions[i]);
+        while(!candidates.none()){
+            moves[(i + 4) % 8] |= empty & shiftBits(candidates, directions[i]);
+            allMoves |= empty & shiftBits(candidates, directions[i]);
+            candidates = pieces[!side] & shiftBits(candidates, directions[i]);
+        }
+    }
+    isMovesCalc = true;
+}
+
+/**
+ * Determines whether the specified side has any moves
+ * @param  side Side to check for moves on
+ * @return      True if there are >0 possible moves, false otherwise
+ */
+bool Board::hasMoves(bool side){
+    if(!isMovesCalc || calcSide != side){
+        calcMoves(side);
+    }
+    return !allMoves.none();
+}
+
+/**
+ * Counts the number of moves available to the given side
+ * @param  side Side to check for moves on
+ * @return      Number of available moves
+ */
+int Board::countMoves(bool side){
+    if(!isMovesCalc || calcSide != side){
+        calcMoves(side);
+    }
+    return allMoves.count();
+}
+
+vector<Move*> Board::possibleMoves(bool side){
+    if(!isMovesCalc || calcSide != side){
+        calcMoves(side);
+    }
+    vector<Move*> ret = vector<Move*>();
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){
+            if(allMoves[POS(x, y)]){
+                ret.push_back(new Move(x, y));
+            }
+        }
+    }
+    return ret;
+}
+
+/**
+ * Checks if a certain move is valid for the specified side
+ * @param  m    Move to check
+ * @param  side Side to check the move on
+ * @return      True if move is valid, false otherwise
+ */
+bool Board::checkMove(Move *m, bool side){
+    if(!isMovesCalc || calcSide != side){
+        calcMoves(side);
+    }
+    return allMoves[POS(m->getX(), m->getY())];
+}
+
+/**
+ * Does a given move on the board
+ * @param m    Move to do on the board
+ * @param side Side to perform the move from
+ */
+void Board::doMove(Move *m, bool side){
+    if (m == nullptr) return;
+    isMovesCalc = false;
+    if (!checkMove(m, side)) return;
+    bitset<72> move;
+    move.set(POS(m->getX(), m->getY()));
+    pieces[side].set(POS(m->getX(), m->getY()));
+    for(int i = 0; i < 8; i++){
+        if(!(move & moves[i]).none()){
+            bitset<72> target = shiftBits(move, directions[i]);
+            while((target & pieces[side]).none()){
+                pieces[side] |= target;
+                pieces[!side] ^= target;
+                target = shiftBits(target, directions[i]);
+            }
+        }
+    }
+}
+
+/**
+ * Counts the number of pieces on a given side
+ * @param  side Side to check for pieces on
+ * @return      Number of pieces for that side
+ */
+int Board::count(bool side){
+    return pieces[side].count();
+}
+
+bool Board::isDone(){
     return !(hasMoves(BLACK) || hasMoves(WHITE));
 }
 
-/*
- * Returns true if there are legal moves for the given side.
+/**
+ * Overrides the board state to match given data. Used for testsuites
+ * @param data Data to change board state to
  */
-bool Board::hasMoves(bool side) {
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            Move move(i, j);
-            if (checkMove(&move, side)) return true;
+void Board::setBoard(char data[]){
+    pieces[BLACK].reset();
+    pieces[WHITE].reset();
+    isMovesCalc = false;
+
+    for(int i = 0; i < 64; i++){
+        if(data[i] == 'b'){
+            pieces[BLACK].set(POS(i % 8, i / 8));
+        }
+        else if(data[i] == 'w'){
+            pieces[WHITE].set(POS(i % 8, i / 8));
         }
     }
-    return false;
 }
 
-/*
- * Returns true if a move is legal for the given side; false otherwise.
+/**
+ * Finds the frontier size for a given side
+ * @param  side Side to calculate frontier of
+ * @return      Frontier of given side
  */
-bool Board::checkMove(Move *m, bool side) {
-    // Passing is only legal if you have no moves.
-    if (m == nullptr) return !hasMoves(side);
+int Board::getFrontierSize(bool side){
+    bitset<72> frontier;
+    bitset<72> empty = boardMask ^ (pieces[side] | pieces[!side]);
 
-    int X = m->getX();
-    int Y = m->getY();
-
-    // Make sure the square hasn't already been taken.
-    if (occupied(X, Y)) return false;
-
-    bool other = !side;
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            if (dy == 0 && dx == 0) continue;
-
-            // Is there a capture in that direction?
-            int x = X + dx;
-            int y = Y + dy;
-            if (onBoard(x, y) && get(other, x, y)) {
-                do {
-                    x += dx;
-                    y += dy;
-                } while (onBoard(x, y) && get(other, x, y));
-
-                if (onBoard(x, y) && get(side, x, y)) return true;
-            }
-        }
-    }
-    return false;
-}
-
-/*
- * Modifies the board to reflect the specified move.
- */
-void Board::doMove(Move *m, bool side) {
-    // A nullptr move means pass.
-    if (m == nullptr){
-        parity += 1;
-        parity %= 2;
-        return;
-    }
-
-    // Ignore if move is invalid.
-    if (!checkMove(m, side)) return;
-
-    int X = m->getX();
-    int Y = m->getY();
-    bool other = !side;
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            if (dy == 0 && dx == 0) continue;
-
-            int x = X;
-            int y = Y;
-            do {
-                x += dx;
-                y += dy;
-            } while (onBoard(x, y) && get(other, x, y));
-
-            if (onBoard(x, y) && get(side, x, y)) {
-                x = X;
-                y = Y;
-                x += dx;
-                y += dy;
-                while (onBoard(x, y) && get(other, x, y)) {
-                    set(side, x, y);
-                    x += dx;
-                    y += dy;
-                }
-            }
-        }
-    }
-    set(side, X, Y);
-}
-
-// Check if an x, y is a corner, assuming the x,y is a valid input.
-bool Board::isCorner(int x, int y) {
-    if ((x % 7 == 0) && (y*8 % 7 == 0)) {
-        return true;
-    }
-    return false;
-}
-
-// checks if a position x,y for a side is stable
-// necessary conditions are either that it is a corner,
-// That it is next to a side and a corner
-// Or that it is next to 4 stable pieces
-bool Board::isStable(int x, int y, bool side) {
-    if (isCorner(x,y)) {
-        return true;
-    }
-    // Check next to side and a corner
-    if ((x+1 > 7 || y+1 > 7 || x-1 < 0 || y-1 < 0)
-        && ((isCorner(x+1,y) && get(side, x+1, y))
-        || (isCorner(x-1,y) && get(side, x-1, y))
-        || (isCorner(x,y+1) && get(side, x, y+1))
-        || (isCorner(x, y-1) && get(side, x, y-1))))
-        {
-            return true;
-    }
-
-    // Also if it is next to 4 stable pieces this applies, but it is expensive to compute
-    // This can be optimised VERY easily by keeping track of which ones are stable on the board
-    // Also we should keep a board variable that keeps track of stability so we don't compute it every heuristic
-//     int next_to = 0;
-//     if (isStable(x-1, y-1, side) && onBoard(x-1, y-1)) {
-//         next_to += 1;
-//     }
-//     if (isStable(x, y-1, side) && onBoard(x, y-1)) {
-//         next_to += 1;
-//     }
-//     if (isStable(x+1, y-1, side) && onBoard(x+1, y-1)) {
-//         next_to += 1;
-//     }
-//     if (isStable(x-1, y, side) && onBoard(x-1, y)) {
-//         next_to += 1;
-//     }
-//     if (isStable(x+1, y, side) && onBoard(x+1, y)) {
-//         next_to += 1;
-//     }
-//     if (isStable(x-1, y+1, side) && onBoard(x-1, y+1)) {
-//         next_to += 1;
-//     }
-//     if (isStable(x, y+1, side) && onBoard(x, y+1)) {
-//         next_to += 1;
-//     }
-//     if (isStable(x+1, y+1, side) && onBoard(x+1, y+1)) {
-//         next_to += 1;
-//     }
-//     if (next_to >= 4) {
-//         return true;
-//     }
-
-    return false;
-}
-
-// Count the number of stable tiles and scale for the Heuristic
-int Board::countStableHeuristic(bool side) {
-    int value = 0;
     for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
-            bool stable = isStable(i,j,side);
-            if (stable && get(side, i, j) && isCorner(i,j)) {
-                value += 10;
-            }
-            else if (stable && get(side, i, j)) {
-                value += 3;
-            }
-        }
+        frontier |= (shiftBits(pieces[side], directions[i]) & empty);
     }
-    return value;
+
+    return frontier.count();
 }
 
-// Find possible moves
-vector<Move*> Board::possibleMoves(bool side) {
-    vector<Move*> moves;
+int Board::countStable(bool side){
+    bitset<72> fullStable;
+    bitset<72> partialStable[4];
+    // Add partial stability to edges/corners
+    // NW/SE
+    partialStable[0] = pieces[side] & (bitset<72>(0xff40A05028140a05) << 8 | bitset<72>(0xfe));
+    // N/S
+    partialStable[1] = pieces[side] & (bitset<72>(0xff00000000000001) << 8 | bitset<72>(0xfe));
+    // NE/SW
+    partialStable[2] = pieces[side] & (bitset<72>(0xff40A05028140a05) << 8 | bitset<72>(0xfe));
+    // E/W
+    partialStable[3] = pieces[side] & (bitset<72>(0x8140a05028140a05) << 8 | bitset<72>(0x02));
+
+    // Add partial stability to pieces in full rows/columns/diagonals
+    // Diagonals NW/SE
+    bitset<72> filter = (bitset<72>(0x0000000000000001) << 8);
+    for(int i = 0; i < 15; i++){
+        if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
+            partialStable[0] |= (filter & pieces[side]);
+        }
+        filter = shiftBits(filter, N) | shiftBits(filter, E);
+    }
+    // Columns N/S
+    filter = (bitset<72>(0x8040201008040201) << 8);
     for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
-            Move* move = new Move(i, j);
-            if(checkMove(move, side)) {
-                moves.push_back(move);
-            }
-            else{
-                delete move;
-            }
+        if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
+            partialStable[1] |= (filter & pieces[side]);
         }
+        filter = shiftBits(filter, E);
     }
-    return moves;
-}
-
-int Board::getParity() {
-    return parity;
-}
-
-/*
- * Current count of given side's stones.
- */
-int Board::count(bool side) {
-    return (side == BLACK) ? countBlack() : countWhite();
-}
-
-/*
- * Current count of black stones.
- */
-int Board::countBlack() {
-    return black.count();
-}
-
-/*
- * Current count of white stones.
- */
-int Board::countWhite() {
-    return taken.count() - black.count();
-}
-
-/*
- * Sets the board state given an 8x8 char array where 'w' indicates a white
- * piece and 'b' indicates a black piece. Mainly for testing purposes.
- */
-void Board::setBoard(char data[]) {
-    taken.reset();
-    black.reset();
-    for (int i = 0; i < 64; i++) {
-        if (data[i] == 'b') {
-            taken.set(i);
-            black.set(i);
-        } if (data[i] == 'w') {
-            taken.set(i);
+    // Diagonals NE/SW
+    filter = (bitset<72>(0x8000000000000000) << 8);
+    for(int i = 0; i < 15; i++){
+        if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
+            partialStable[2] |= (filter & pieces[side]);
         }
+        filter = shiftBits(filter, S) | shiftBits(filter, E);
     }
+    // Rows E/W
+    filter = (bitset<72>(0xff00000000000000) << 8);
+    for(int i = 0; i < 8; i++){
+        if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
+            partialStable[3] |= (filter & pieces[side]);
+        }
+        filter = shiftBits(filter, S);
+    }
+
+    // Define full stable as intersection of partials
+    fullStable = partialStable[0] & partialStable[1] & partialStable[2] & partialStable[3];
+
+    // Loop until no changes are made to find all chained stable pieces
+    bitset<72> updateStable = fullStable;
+    do{
+        fullStable = updateStable;
+        for(int i = 0; i < 4; i++){
+            partialStable[i] |= pieces[side] & shiftBits(fullStable, directions[i]);
+            partialStable[i] |= pieces[side] & shiftBits(fullStable, directions[i+4]);
+        }
+        updateStable = partialStable[0] & partialStable[1] & partialStable[2] & partialStable[3];
+    } while(fullStable != updateStable);
+
+    return fullStable.count();
+}
+
+void Board::printBits(bitset<72> bits){
+    for(int y = 0; y < 8; y++){
+        for(int x = 0; x < 8; x++){
+            cerr << bits[POS(x, y)];
+        }
+        cerr << endl;
+    }
+    cerr << endl;
 }
