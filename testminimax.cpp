@@ -7,6 +7,8 @@
 // Use this file to test your minimax implementation (2-ply depth, with a
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
+
+
     Player *black = new Player(BLACK);
     Player *white = new Player(WHITE);
     Move *blackMove = nullptr;
@@ -15,6 +17,25 @@ int main(int argc, char *argv[]) {
         blackMove = black->doMove(whiteMove, 0);
         whiteMove = white->doMove(blackMove, 0);
     }
+    
+
+    /*
+    char boardData[64] = {
+        ' ', ' ', ' ', ' ', 'w', ' ', ' ', ' ',
+        ' ', 'w', ' ', ' ', ' ', ' ', ' ', ' ',
+        'w', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', 'w', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', 'b', ' ', ' ', 'w',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', 'w', ' ', ' ', ' ', ' '
+    };
+
+   Board board = Board();
+   board.setBoard(boardData);
+   board.test();
+   */
+
     /*
     // Create board with example state. You do not necessarily need to use
     // this, but it's provided for convenience.

@@ -6,24 +6,26 @@
 #include "common.hpp"
 using namespace std;
 
-#define POS(x, y) ((8 - x) + (9 * (7 - y)))
+#define GET(bits, x, y) ((bool)(bits & (0x1ULL << ( (7-x) + 8 * (7-y) ))))
+#define FLIP(bits, x, y) bits ^= (0x1ULL << ( (7-x) + 8 * (7-y) ))
+
+#define ZERO 0x0000000000000000ULL
 
 enum Direction {NW, N, NE, E, SE, S, SW, W};
 
 class Board {
 
 private:
-    bitset<72> pieces[2];
+    unsigned long long pieces[2];
 
-
-    bitset<72> moves[8];
-    bitset<72> allMoves;
+    unsigned long long moves[8];
+    unsigned long long allMoves;
     bool isMovesCalc;
     bool calcSide;
 
-    static bitset<72> shiftBits(bitset<72> bits, Direction dir);
+    unsigned long long shiftBits(unsigned long long bits, Direction dir);
     void calcMoves(bool side);
-    void printBits(bitset<72> bits);
+    void printBits(unsigned long long bits);
 
     int parity;
 

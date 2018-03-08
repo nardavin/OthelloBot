@@ -1,16 +1,15 @@
 #include "board.hpp"
 
-static bitset<72> boardMask = (bitset<72>(0xff7fbfdfeff7fbfdULL) << 8) | bitset<72>(0xfeULL);
+static unsigned long long leftMask = 0xfefefefefefefefeULL;
+static unsigned long long rightMask = 0x7f7f7f7f7f7f7f7fULL;
 static Direction directions[8] = {NW, N, NE, E, SE, S, SW, W};
 
 /**
  * Constructs a new board
  */
 Board::Board(){
-    pieces[WHITE].set(POS(3, 3));
-    pieces[WHITE].set(POS(4, 4));
-    pieces[BLACK].set(POS(3, 4));
-    pieces[BLACK].set(POS(4, 3));
+    pieces[WHITE] = 0x0000001008000000ULL;
+    pieces[BLACK] = 0x0000000810000000ULL;
     isMovesCalc = false;
     calcSide = BLACK;
 }
@@ -44,10 +43,10 @@ Board* Board::copy(){
 void Board::printBoard(){
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
-            if(pieces[WHITE][POS(x, y)]){
+            if(GET(pieces[WHITE], x, y)){
                 cerr << "W";
             }
-            else if(pieces[BLACK][POS(x, y)]){
+            else if(GET(pieces[BLACK], x, y)){
                 cerr << "B";
             }
             else{
@@ -64,31 +63,31 @@ void Board::printBoard(){
  * @param bits Grid of bits to shift
  * @param dir  Direction to shift bits
  */
-bitset<72> Board::shiftBits(bitset<72> bits, Direction dir){
+unsigned long long Board::shiftBits(unsigned long long bits, Direction dir){
     switch(dir){
         case W:
-        return (bits << 1) & boardMask;
+        return (bits << 1) & leftMask;
 
         case NW:
-        return (bits << 10) & boardMask;
+        return (bits << 9) & leftMask;
 
         case N:
-        return (bits << 9) & boardMask;
+        return (bits << 8);
 
         case NE:
-        return (bits << 8) & boardMask;
+        return (bits << 7) & rightMask;
 
         case E:
-        return (bits >> 1) & boardMask;
+        return (bits >> 1) & rightMask;
 
         case SE:
-        return (bits >> 10) & boardMask;
+        return (bits >> 9) & rightMask;
 
         case S:
-        return (bits >> 9) & boardMask;
+        return (bits >> 8);
 
         case SW:
-        return (bits >> 8) & boardMask;
+        return (bits >> 7) & leftMask;
 
         default:
         return bits;
@@ -101,20 +100,20 @@ bitset<72> Board::shiftBits(bitset<72> bits, Direction dir){
  * @param side Side to calculate the possible moves for
  */
 void Board::calcMoves(bool side){
-    calcSide = side;
-    bitset<72> empty = boardMask ^ (pieces[side] | pieces[!side]);
+    unsigned long long empty = ~(pieces[side] | pieces[!side]);
     for(int i = 0; i < 8; i++){
-        moves[i].reset();
+        moves[i] = ZERO;
     }
-    allMoves.reset();
+    allMoves = ZERO;
     for(int i = 0; i < 8; i++){
-        bitset<72> candidates = pieces[!side] & shiftBits(pieces[side], directions[i]);
-        while(!candidates.none()){
+        unsigned long long candidates = pieces[!side] & shiftBits(pieces[side], directions[i]);
+        while(candidates != ZERO){
             moves[(i + 4) % 8] |= empty & shiftBits(candidates, directions[i]);
             allMoves |= empty & shiftBits(candidates, directions[i]);
             candidates = pieces[!side] & shiftBits(candidates, directions[i]);
         }
     }
+    calcSide = side;
     isMovesCalc = true;
 }
 
@@ -127,7 +126,7 @@ bool Board::hasMoves(bool side){
     if(!isMovesCalc || calcSide != side){
         calcMoves(side);
     }
-    return !allMoves.none();
+    return (bool)allMoves;
 }
 
 /**
@@ -139,7 +138,7 @@ int Board::countMoves(bool side){
     if(!isMovesCalc || calcSide != side){
         calcMoves(side);
     }
-    return allMoves.count();
+    return __builtin_popcountll(allMoves);
 }
 
 vector<Move*> Board::possibleMoves(bool side){
@@ -149,7 +148,7 @@ vector<Move*> Board::possibleMoves(bool side){
     vector<Move*> ret = vector<Move*>();
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
-            if(allMoves[POS(x, y)]){
+            if(GET(allMoves, x, y)){
                 ret.push_back(new Move(x, y));
             }
         }
@@ -167,7 +166,7 @@ bool Board::checkMove(Move *m, bool side){
     if(!isMovesCalc || calcSide != side){
         calcMoves(side);
     }
-    return allMoves[POS(m->getX(), m->getY())];
+    return GET(allMoves, m->getX(), m->getY());
 }
 
 /**
@@ -176,22 +175,22 @@ bool Board::checkMove(Move *m, bool side){
  * @param side Side to perform the move from
  */
 void Board::doMove(Move *m, bool side){
-    if (m == nullptr) return;
-    isMovesCalc = false;
-    if (!checkMove(m, side)) return;
-    bitset<72> move;
-    move.set(POS(m->getX(), m->getY()));
-    pieces[side].set(POS(m->getX(), m->getY()));
+    if (m == nullptr) {return;}
+    if (!checkMove(m, side)) {return;}
+    unsigned long long move = ZERO;
+    FLIP(move, m->getX(), m->getY());
+    FLIP(pieces[side], m->getX(), m->getY());
     for(int i = 0; i < 8; i++){
-        if(!(move & moves[i]).none()){
-            bitset<72> target = shiftBits(move, directions[i]);
-            while((target & pieces[side]).none()){
+        if(move & moves[i]){
+            unsigned long long target = shiftBits(move, directions[i]);
+            while(!(target & pieces[side])){
                 pieces[side] |= target;
                 pieces[!side] ^= target;
                 target = shiftBits(target, directions[i]);
             }
         }
     }
+    isMovesCalc = false;
 }
 
 /**
@@ -200,7 +199,7 @@ void Board::doMove(Move *m, bool side){
  * @return      Number of pieces for that side
  */
 int Board::count(bool side){
-    return pieces[side].count();
+    return __builtin_popcountll(pieces[side]);
 }
 
 bool Board::isDone(){
@@ -212,16 +211,16 @@ bool Board::isDone(){
  * @param data Data to change board state to
  */
 void Board::setBoard(char data[]){
-    pieces[BLACK].reset();
-    pieces[WHITE].reset();
+    pieces[BLACK] = ZERO;
+    pieces[WHITE] = ZERO;
     isMovesCalc = false;
 
     for(int i = 0; i < 64; i++){
         if(data[i] == 'b'){
-            pieces[BLACK].set(POS(i % 8, i / 8));
+            FLIP(pieces[BLACK], i % 8, i/8);
         }
         else if(data[i] == 'w'){
-            pieces[WHITE].set(POS(i % 8, i / 8));
+            FLIP(pieces[WHITE], i % 8, i/8);
         }
     }
 }
@@ -232,32 +231,32 @@ void Board::setBoard(char data[]){
  * @return      Frontier of given side
  */
 int Board::getFrontierSize(bool side){
-    bitset<72> frontier;
-    bitset<72> empty = boardMask ^ (pieces[side] | pieces[!side]);
+    unsigned long long frontier = ZERO;
+    unsigned long long empty = ~(pieces[side] | pieces[!side]);
 
     for(int i = 0; i < 8; i++){
         frontier |= (shiftBits(pieces[side], directions[i]) & empty);
     }
 
-    return frontier.count();
+    return __builtin_popcountll(frontier);
 }
 
 int Board::countStable(bool side){
-    bitset<72> fullStable;
-    bitset<72> partialStable[4];
+    unsigned long long fullStable = ZERO;
+    unsigned long long partialStable[4];
     // Add partial stability to edges/corners
     // NW/SE
-    partialStable[0] = pieces[side] & (bitset<72>(0xff40A05028140a05) << 8 | bitset<72>(0xfe));
+    partialStable[0] = pieces[side] & 0xff818181818181ffULL;
     // N/S
-    partialStable[1] = pieces[side] & (bitset<72>(0xff00000000000001) << 8 | bitset<72>(0xfe));
+    partialStable[1] = pieces[side] & 0xff000000000000ffULL;
     // NE/SW
-    partialStable[2] = pieces[side] & (bitset<72>(0xff40A05028140a05) << 8 | bitset<72>(0xfe));
+    partialStable[2] = pieces[side] & 0xff818181818181ffULL;
     // E/W
-    partialStable[3] = pieces[side] & (bitset<72>(0x8140a05028140a05) << 8 | bitset<72>(0x02));
+    partialStable[3] = pieces[side] & 0x8181818181818181ULL;
 
     // Add partial stability to pieces in full rows/columns/diagonals
     // Diagonals NW/SE
-    bitset<72> filter = (bitset<72>(0x0000000000000001) << 8);
+    unsigned long long filter = 0x0000000000000080ULL;
     for(int i = 0; i < 15; i++){
         if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
             partialStable[0] |= (filter & pieces[side]);
@@ -265,7 +264,7 @@ int Board::countStable(bool side){
         filter = shiftBits(filter, N) | shiftBits(filter, E);
     }
     // Columns N/S
-    filter = (bitset<72>(0x8040201008040201) << 8);
+    filter = 0x8080808080808080ULL;
     for(int i = 0; i < 8; i++){
         if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
             partialStable[1] |= (filter & pieces[side]);
@@ -273,7 +272,7 @@ int Board::countStable(bool side){
         filter = shiftBits(filter, E);
     }
     // Diagonals NE/SW
-    filter = (bitset<72>(0x8000000000000000) << 8);
+    filter = 0x8000000000000000ULL;
     for(int i = 0; i < 15; i++){
         if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
             partialStable[2] |= (filter & pieces[side]);
@@ -281,7 +280,7 @@ int Board::countStable(bool side){
         filter = shiftBits(filter, S) | shiftBits(filter, E);
     }
     // Rows E/W
-    filter = (bitset<72>(0xff00000000000000) << 8);
+    filter = 0xff00000000000000ULL;
     for(int i = 0; i < 8; i++){
         if(filter == (filter & (pieces[BLACK] | pieces[WHITE]))){
             partialStable[3] |= (filter & pieces[side]);
@@ -293,7 +292,7 @@ int Board::countStable(bool side){
     fullStable = partialStable[0] & partialStable[1] & partialStable[2] & partialStable[3];
 
     // Loop until no changes are made to find all chained stable pieces
-    bitset<72> updateStable = fullStable;
+    unsigned long long updateStable = fullStable;
     do{
         fullStable = updateStable;
         for(int i = 0; i < 4; i++){
@@ -303,13 +302,13 @@ int Board::countStable(bool side){
         updateStable = partialStable[0] & partialStable[1] & partialStable[2] & partialStable[3];
     } while(fullStable != updateStable);
 
-    return fullStable.count();
+    return __builtin_popcountll(fullStable);
 }
 
-void Board::printBits(bitset<72> bits){
+void Board::printBits(unsigned long long bits){
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
-            cerr << bits[POS(x, y)];
+            cerr << GET(bits, x, y);
         }
         cerr << endl;
     }
