@@ -37,6 +37,7 @@ float heuristic(Board* board, bool ourSide) {
     float numMovesMult = 2.0;
     float numStableMult = 5.0;
     float frontierSizeMult = 1.0;
+    float parityMult = 2.0;
 
     float value = 0;
 
@@ -55,6 +56,7 @@ float heuristic(Board* board, bool ourSide) {
     value += board->countMoves(ourSide) * numMovesMult;
     value += board->countStable(ourSide) * numStableMult;
     value -= board->getFrontierSize(ourSide) * frontierSizeMult;
+    value += (board->getParity() == ourSide) ? parityMult : -parityMult;
 
     value -= theirCount * numPiecesMult;
     value -= board->countMoves(theirSide) * numMovesMult;

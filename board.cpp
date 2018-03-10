@@ -12,6 +12,7 @@ Board::Board(){
     pieces[BLACK] = 0x0000000810000000ULL;
     isMovesCalc = false;
     calcSide = BLACK;
+    parity = WHITE;
 }
 
 /**
@@ -34,6 +35,7 @@ Board* Board::copy(){
     newBoard->allMoves = allMoves;
     newBoard->isMovesCalc = isMovesCalc;
     newBoard->calcSide = calcSide;
+    newBoard->parity = parity;
     return newBoard;
 }
 
@@ -175,7 +177,10 @@ bool Board::checkMove(Move *m, bool side){
  * @param side Side to perform the move from
  */
 void Board::doMove(Move *m, bool side){
-    if (m == nullptr) {return;}
+    if (m == nullptr) {
+        parity = !parity;
+        return;
+    }
     if (!checkMove(m, side)) {return;}
     unsigned long long move = ZERO;
     FLIP(move, m->getX(), m->getY());
@@ -313,4 +318,8 @@ void Board::printBits(unsigned long long bits){
         cerr << endl;
     }
     cerr << endl;
+}
+
+bool Board::getParity() {
+    return parity;
 }
