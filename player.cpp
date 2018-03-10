@@ -88,7 +88,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(&naiveHeuristic, 2, msLeft);
     }
     else {
-        moveToMake = minimax(&heuristic, 8, msLeft);
+        moveToMake = minimax(&heuristic, 9, msLeft);
     }
     othelloBoard->doMove(moveToMake, ourSide);
     if(moveToMake == nullptr){

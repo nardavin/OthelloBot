@@ -43,7 +43,6 @@ Move BoardNode::getMove(){
     return *move;
 }
 
-
 /**
  * Searches a tree using minimax and A/B pruning to find the heuristic score
  * for this board
@@ -65,6 +64,9 @@ float BoardNode::searchTree(int depth, float alpha, float beta,
     if(possibleMoves.size() == 0){
         possibleMoves.push_back(nullptr);
     }
+    //else if(depth >= 4){
+    //    possibleMoves = sortMoves(possibleMoves, heuristic, 2, ourSide);
+    //}
     for(int i = 0; i < (int)possibleMoves.size(); i++){
         children.push_back(new BoardNode(board, possibleMoves[i], movingSide));
     }
@@ -115,4 +117,24 @@ Move* BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool
     }
     children.clear();
     return new Move(ret.getX(), ret.getY());
+}
+
+vector<Move*> BoardNode::sortMoves(vector<Move*> moves, float (*heuristic)(Board*, bool),
+                                            int depth, bool ourSide){
+    vector<pair<float, int>> indexScores;
+    float alpha = -numeric_limits<float>::max();
+    float beta = numeric_limits<float>::max();
+
+    for(int i = 0; i < (int)moves.size(); i++){
+        Move *tempMove = new Move(moves[i]->getX(), moves[i]->getY());
+        BoardNode node = BoardNode(board, tempMove, !side);
+        indexScores.push_back(make_pair(node.searchTree(depth, alpha, beta, heuristic, ourSide), i));
+    }
+    std::sort(indexScores.begin(), indexScores.end());
+    vector<Move*> sorted;
+    for(int i = 0; i < (int)indexScores.size(); i++){
+        sorted.push_back(moves[indexScores[i].second]);
+    }
+
+    return sorted;
 }
