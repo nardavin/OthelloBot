@@ -63,7 +63,7 @@ float BoardNode::searchTree(int depth, float alpha, float beta,
     bool isMaxing = (ourSide == movingSide);
     vector<Move*> possibleMoves = board->possibleMoves(movingSide);
     if(possibleMoves.size() == 0){
-        return (*heuristic)(board, ourSide);
+        possibleMoves.push_back(nullptr);
     }
     for(int i = 0; i < (int)possibleMoves.size(); i++){
         children.push_back(new BoardNode(board, possibleMoves[i], movingSide));
