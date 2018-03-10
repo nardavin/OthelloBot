@@ -27,7 +27,7 @@ private:
     void calcMoves(bool side);
     void printBits(unsigned long long bits);
 
-    int parity;
+    bool parity;
 
 public:
     Board();
@@ -39,7 +39,7 @@ public:
 
 
     vector<Move*> possibleMoves(bool side);
-    //int getParity();
+    bool getParity();
 
     bool isDone();
     bool hasMoves(bool side);
