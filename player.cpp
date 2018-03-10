@@ -38,30 +38,29 @@ float heuristic(Board* board, bool ourSide) {
     float numStableMult = 5.0;
     float frontierSizeMult = 1.0;
     float parityMult = 2.0;
+    float gameEndMult = 100000.0;
 
     float value = 0;
 
     int ourCount = board->count(ourSide);
-    int theirCount = board->count(theirSide);
-//     if (!(board->hasMoves(ourSide) || board->hasMoves(theirSide))) {
-//         if (ourCount - theirCount > 0) {
-//             return 10000;
-//         }
-//         else {
-//             return -10000;
-//         }
-//     }
-
+    int ourMoves = board->countMoves(ourSide);
     value += ourCount * numPiecesMult;
-    value += board->countMoves(ourSide) * numMovesMult;
+    value += ourMoves * numMovesMult;
     value += board->countStable(ourSide) * numStableMult;
     value -= board->getFrontierSize(ourSide) * frontierSizeMult;
     value += (board->getParity() == ourSide) ? parityMult : -parityMult;
 
+
+    int theirCount = board->count(theirSide);
+    int theirMoves = board->countMoves(theirSide);
     value -= theirCount * numPiecesMult;
-    value -= board->countMoves(theirSide) * numMovesMult;
+    value -= theirMoves * numMovesMult;
     value -= board->countStable(theirSide) * numStableMult;
     value += board->getFrontierSize(theirSide) * frontierSizeMult;
+
+    if(ourMoves == 0 && theirMoves == 0){
+        value += (ourCount > theirCount) ? gameEndMult : -gameEndMult;
+    }
 
     return value;
 }
@@ -89,7 +88,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(&naiveHeuristic, 2, msLeft);
     }
     else {
-        moveToMake = minimax(&heuristic, 10, msLeft);
+        moveToMake = minimax(&heuristic, 8, msLeft);
     }
     othelloBoard->doMove(moveToMake, ourSide);
     if(moveToMake == nullptr){

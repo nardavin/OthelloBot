@@ -35,6 +35,8 @@ public:
     Board *copy();
     void printBoard();
 
+    void test();
+
     int countStable(bool side);
 
 
