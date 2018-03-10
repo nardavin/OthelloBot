@@ -40,12 +40,23 @@ float heuristic(Board* board, bool ourSide) {
 
     float value = 0;
 
-    value += board->count(ourSide) * numPiecesMult;
+    int ourCount = board->count(ourSide);
+    int theirCount = board->count(theirSide);
+//     if (!(board->hasMoves(ourSide) || board->hasMoves(theirSide))) {
+//         if (ourCount - theirCount > 0) {
+//             return 10000;
+//         }
+//         else {
+//             return -10000;
+//         }
+//     }
+    
+    value += ourCount * numPiecesMult;
     value += board->countMoves(ourSide) * numMovesMult;
     value += board->countStable(ourSide) * numStableMult;
     value -= board->getFrontierSize(ourSide) * frontierSizeMult;
 
-    value -= board->count(theirSide) * numPiecesMult;
+    value -= theirCount * numPiecesMult;
     value -= board->countMoves(theirSide) * numMovesMult;
     value -= board->countStable(theirSide) * numStableMult;
     value += board->getFrontierSize(theirSide) * frontierSizeMult;
