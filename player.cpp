@@ -44,6 +44,7 @@ float heuristic(Board* board, bool ourSide) {
 
     int ourCount = board->count(ourSide);
     int ourMoves = board->countMoves(ourSide);
+
     value += ourCount * numPiecesMult;
     value += ourMoves * numMovesMult;
     value += board->countStable(ourSide) * numStableMult;
@@ -88,7 +89,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         moveToMake = minimax(&naiveHeuristic, 2, msLeft);
     }
     else {
-        moveToMake = minimax(&heuristic, 10, msLeft);
+        moveToMake = minimax(&heuristic, 8, msLeft);
     }
     othelloBoard->doMove(moveToMake, ourSide);
     if(moveToMake == nullptr){
