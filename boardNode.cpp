@@ -63,7 +63,7 @@ float BoardNode::searchTree(int depth, float alpha, float beta,
     bool isMaxing = (ourSide == movingSide);
     vector<Move*> possibleMoves = board->possibleMoves(movingSide);
     if(possibleMoves.size() == 0){
-        return (*heuristic)(board, ourSide);
+        possibleMoves.push_back(nullptr);
     }
     for(int i = 0; i < (int)possibleMoves.size(); i++){
         children.push_back(new BoardNode(board, possibleMoves[i], movingSide));
@@ -89,7 +89,7 @@ float BoardNode::searchTree(int depth, float alpha, float beta,
  * Finds the best move to make this round using minimax and A/B pruning
  * @param  depth     Depth to search in the node tree
  * @param  heuristic Heuristic function that defines the score for each position
- * @param  ourSide   The side thet you are playing on. Passed into heuristic function.
+ * @param  ourSide   The side that you are playing on. Passed into heuristic function.
  * @return           The most optimal move based on the heuristic function
  */
 Move* BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool ourSide){

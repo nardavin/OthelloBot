@@ -8,33 +8,46 @@
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
 
-
+    /*
     Player *black = new Player(BLACK);
     Player *white = new Player(WHITE);
     Move *blackMove = nullptr;
     Move *whiteMove = nullptr;
     for(int i = 0; i < 32; i++){
         blackMove = black->doMove(whiteMove, 0);
+        delete whiteMove;
         whiteMove = white->doMove(blackMove, 0);
+        delete blackMove;
     }
-    
+    delete whiteMove;
+    delete black;
+    delete white;
+    */
 
-    /*
+
+
     char boardData[64] = {
-        ' ', ' ', ' ', ' ', 'w', ' ', ' ', ' ',
-        ' ', 'w', ' ', ' ', ' ', ' ', ' ', ' ',
-        'w', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', 'w', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', 'b', ' ', ' ', 'w',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', 'w', ' ', ' ', ' ', ' '
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', 'b', 'w', ' ', ' ', ' ',
+        ' ', ' ', ' ', 'w', 'b', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
     };
 
-   Board board = Board();
-   board.setBoard(boardData);
-   board.test();
-   */
+   Board *board = new Board();
+   board->setBoard(boardData);
+   board->test();
+   board->possibleMoves(WHITE);
+   board->test();
+   Board *two = board->copy();
+   board->doMove(new Move(2, 3), WHITE);
+   board->test();
+   two->test();
+
+
 
     /*
     // Create board with example state. You do not necessarily need to use
