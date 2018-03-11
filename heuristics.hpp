@@ -9,6 +9,7 @@ class Heuristics {
 public:
     static float naiveHeuristic(Board* board, bool side);
     static float heuristic(Board* board, bool ourSide);
+    static float endgameHeuristic(Board* board, bool ourSide);
 };
 
 #endif

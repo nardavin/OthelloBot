@@ -39,3 +39,17 @@ float Heuristics::heuristic(Board* board, bool ourSide) {
 
     return value;
 }
+
+float Heuristics::endgameHeuristic(Board* board, bool ourSide){
+    int ourCount = board->count(ourSide);
+    int theirCount = board->count(!ourSide);
+    if(ourCount > theirCount){
+        return 1;
+    }
+    else if(theirCount > ourCount){
+        return -1;
+    }
+    else{
+        return 0;
+    }
+}
