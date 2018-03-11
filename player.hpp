@@ -5,6 +5,7 @@
 #include "common.hpp"
 #include "board.hpp"
 #include "boardNode.hpp"
+#include "heuristics.hpp"
 using namespace std;
 
 class Player {
