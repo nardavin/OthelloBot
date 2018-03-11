@@ -53,7 +53,7 @@ float heuristic2(Board* board, bool ourSide) {
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
 
-    /*
+
     Player *black = new Player(BLACK);
     Player *white = new Player(WHITE);
     Move *blackMove = nullptr;
@@ -67,9 +67,7 @@ int main(int argc, char *argv[]) {
     delete whiteMove;
     delete black;
     delete white;
-    */
-
-
+    
 
 //     char boardData[64] = {
 //         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
@@ -103,7 +101,8 @@ int main(int argc, char *argv[]) {
 //         'b', 'b', 'b', 'b', 'b', 'w', 'w', 'w',
 //         'b', 'b', 'b', 'b', 'b', 'b', ' ', ' '
 //     }; // Black to move
-    
+
+    /*
     char boardData[64] = {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         'w', ' ', 'b', 'w', ' ', ' ', ' ', ' ',
@@ -125,7 +124,9 @@ int main(int argc, char *argv[]) {
    Board *two = board->copy();
    board->doMove(new Move(2, 3), WHITE);
    board->test();
-   two->test(); */
+   two->test(); 
+   two->test();
+   */
 
     Board *board = new Board(); 
     board->setBoard(boardData);

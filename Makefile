@@ -1,5 +1,5 @@
 CC          = g++
-CFLAGS      = -std=c++11 -Wall -pedantic -O3
+CFLAGS      = -std=c++11 -Wall -pedantic -pg -O3
 #CFLAGS = -std=c++11 -Wall -pedantic -O2
 OBJS        = player.o board.o boardNode.o
 PLAYERNAME  = sudormrf
@@ -13,7 +13,7 @@ testgame: testgame.o
 	$(CC) -o $@ $^
 
 testminimax: $(OBJS) testminimax.o
-	$(CC) -o $@ $^
+	$(CC) -o $@ -pg $^
 
 %.o: %.cpp
 	$(CC) -c $(CFLAGS) -x c++ $< -o $@
