@@ -11,9 +11,13 @@ using namespace std;
 class Player {
 private:
     Move *minimax(float (*heuristic)(Board*, bool), int depth, int msLeft);
+    Move *endGameSolve(Move *opponentsMove, int msLeft);
     Board* othelloBoard;
+    int movesPlayed;
     bool ourSide;
     bool otherSide;
+    BoardNode* endGameHead;
+    BoardNode* endGameTracker;
 public:
     Player(bool side);
     ~Player();

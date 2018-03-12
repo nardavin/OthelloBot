@@ -13,6 +13,9 @@ Player::Player(bool side) {
 
     ourSide = side;
     otherSide = !side;
+
+    movesPlayed = 0;
+    endGameHead = nullptr;
 }
 
 /*
@@ -42,23 +45,42 @@ void Player::setBoard(Board* b){
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
+    if(opponentsMove != nullptr){
+        movesPlayed ++;
+    }
+
     othelloBoard->doMove(opponentsMove, otherSide);
 
     Move* moveToMake;
 
-    if (testingMinimax == true) {
-        moveToMake = minimax(&Heuristics::naiveHeuristic, 2, msLeft);
+    if(movesPlayed < 40){
+        if (testingMinimax == true) {
+            moveToMake = minimax(&Heuristics::naiveHeuristic, 2, msLeft);
+        }
+        else {
+            moveToMake = minimax(&Heuristics::heuristic, 10, msLeft);
+        }
     }
-    else {
-        moveToMake = minimax(&Heuristics::heuristic, 8, msLeft);
+    else if(movesPlayed >= 60){
+        moveToMake = nullptr;
     }
+    else{
+        moveToMake = endGameSolve(opponentsMove, msLeft);
+    }
+
     othelloBoard->doMove(moveToMake, ourSide);
+
     if(moveToMake == nullptr){
         cerr << "null" << endl;
     }
     else{
         cerr << moveToMake->getX() << " " << moveToMake->getY() << endl;
     }
+
+    if(moveToMake != nullptr){
+        movesPlayed ++;
+    }
+
     return moveToMake;
 }
 
@@ -67,4 +89,43 @@ Move *Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
     Move* test = root->getBestChoice(depth, heuristic, ourSide);
     delete root;
     return test;
+}
+
+Move *Player::endGameSolve(Move *opponentsMove, int msLeft){
+    if(endGameHead == nullptr){
+        endGameHead = new BoardNode(othelloBoard, ourSide);
+        int score = endGameHead->searchTreeEndGame(&Heuristics::endgameHeuristic, ourSide);
+        if(score < 1){
+            cerr << "No solution found" << endl;
+            delete endGameHead;
+            endGameHead = nullptr;
+            return minimax(&Heuristics::heuristic, 10, msLeft);
+        }
+        cerr << "CHOKEHOLD SOLUTION FOUND" << endl;
+        endGameTracker = endGameHead->getChildren()[0];
+        return endGameTracker->getMove();
+    }
+    else{
+        vector<BoardNode*> nodes = endGameTracker->getChildren();
+        for(int i = 0; i < (int)nodes.size(); i++){
+            if(opponentsMove == nullptr){
+                endGameTracker = endGameTracker->getChildren()[0];
+                break;
+            }
+            Move* temp = nodes[i]->getMove();
+            if(temp->getX() == opponentsMove->getX() && temp->getY() == opponentsMove->getY()){
+                endGameTracker = endGameTracker->getChildren()[i];
+                delete temp;
+                break;
+            }
+            delete temp;
+        }
+        if(endGameTracker->getChildren().size() == 0){
+            return nullptr;
+        }
+        else{
+            endGameTracker = endGameTracker->getChildren()[0];
+            return endGameTracker->getMove();
+        }
+    }
 }

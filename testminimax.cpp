@@ -59,15 +59,17 @@ int main(int argc, char *argv[]) {
     Move *blackMove = nullptr;
     Move *whiteMove = nullptr;
     for(int i = 0; i < 32; i++){
+        cerr << "Black: " << endl;
         blackMove = black->doMove(whiteMove, 0);
         delete whiteMove;
+        cerr << "White: " << endl;
         whiteMove = white->doMove(blackMove, 0);
         delete blackMove;
     }
     delete whiteMove;
     delete black;
     delete white;
-    
+
 
 //     char boardData[64] = {
 //         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
@@ -175,7 +177,7 @@ int main(int argc, char *argv[]) {
         }
         std::cout << ", expected (1, 1)" << std::endl;
     }
-
-    return 0;
     */
+    return 0;
+
 }

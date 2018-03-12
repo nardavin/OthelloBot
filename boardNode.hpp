@@ -25,9 +25,11 @@ public:
                 float (*heuristic)(Board*, bool));
     float searchTreePVS(int depth, float alpha, float beta,
                 float (*heuristic)(Board*, bool));
+    float searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSide);
     vector<Move*> sortMoves(vector<Move*> moves, float (*heuristic)(Board*, bool),
                                                     int depth);
-    Move getMove();
+    Move *getMove();
+    vector<BoardNode*> getChildren();
 
 };
 
