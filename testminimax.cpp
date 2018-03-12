@@ -8,52 +8,6 @@
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
 
-
-    Player *black = new Player(BLACK);
-    Player *white = new Player(WHITE);
-    Move *blackMove = nullptr;
-    Move *whiteMove = nullptr;
-    for(int i = 0; i < 32; i++){
-        cerr << "Black: " << endl;
-        blackMove = black->doMove(whiteMove, 0);
-        delete whiteMove;
-        cerr << "White: " << endl;
-        whiteMove = white->doMove(blackMove, 0);
-        delete blackMove;
-    }
-    delete whiteMove;
-    delete black;
-    delete white;
-
-
-
-    /*
-    char boardData[64] = {
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', 'b', 'w', ' ', ' ', ' ',
-        ' ', ' ', ' ', 'w', 'b', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-    };
-
-   Board *board = new Board();
-   board->setBoard(boardData);
-   board->test();
-   board->possibleMoves(WHITE);
-   board->test();
-   Board *two = board->copy();
-   board->doMove(new Move(2, 3), WHITE);
-   board->test();
-   two->test();
-   */
-
-
-    /*
-    // Create board with example state. You do not necessarily need to use
-    // this, but it's provided for convenience.
     char boardData[64] = {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
@@ -90,7 +44,6 @@ int main(int argc, char *argv[]) {
         }
         std::cout << ", expected (1, 1)" << std::endl;
     }
-    */
     return 0;
 
 }

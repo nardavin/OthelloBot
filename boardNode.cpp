@@ -1,5 +1,8 @@
 #include "boardNode.hpp"
 
+int size = 0;
+int maxSize = 0;
+
 /**
  * Constructs node
  * @param b Board to load into mode
@@ -11,6 +14,10 @@ BoardNode::BoardNode(Board* parentBoard, Move* m, bool s){
     side = s;
     board->doMove(move, side);
     children = vector<BoardNode*>();
+    size += 1;
+    if(size > maxSize){
+        maxSize = size;
+    }
 
 }
 
@@ -21,6 +28,8 @@ BoardNode::BoardNode(Board* parentBoard, Move* m, bool s){
  */
 BoardNode::BoardNode(Board* board, bool ourSide) :
                         BoardNode(board, nullptr, !ourSide){
+    size = 0;
+    maxSize = 0;
 }
 
 /**
@@ -33,6 +42,7 @@ BoardNode::~BoardNode(){
         delete children[i];
     }
     children.clear();
+    size -= 1;
 }
 
 /**
@@ -134,6 +144,9 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
 
 
 float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSide){
+    if(maxSize >= 3000000){
+        return -1;
+    }
     bool movingSide = !side;
     if(board->countMoves(!movingSide) == 0 && board->countMoves(movingSide) == 0){
         //cerr << "hi" << endl;
