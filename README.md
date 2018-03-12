@@ -1,7 +1,9 @@
-#Caltech CS2 Assignment 9: Othello Bot sudormrf
+# Caltech CS2 Assignment 9: Othello Bot sudormrf
+
 By Nicholas Ardavin and Alessio Amaolo
 
-##Contributions by Each Member
+## Contributions by Each Member
+
 Nicholas Ardavin:
 -Implemented minimax and AB pruning
 -Improved minimax to use negamax and negascout
@@ -19,7 +21,8 @@ Alessio Amaolo
 -Debugged a fair amount of code
 
 
-##Improvements to our bot
+## Improvements to our bot
+
 Negascout with Negamax is better than minimax with alpha beta pruning, since it does move ordering to search the moves that are likely better significantly more than the moves that are likely to not be as good. 
 
 Endgame solver that looks 20 moves ahead and forces the opponent to lose (if a solution is found). Otherwise it'll play normally with the heuristic and continue searching for a forced win, since the opponent may still make a mistake. 
@@ -31,14 +34,16 @@ Our heuristic took into account mobility, frontiers, stable pieces, parity. Then
 We tried to use an opening book but it is hard. Maybe next year? 
 
 
-##Future Work:
+## Future Work
+
 Opening book would significantly speed up the beginning of the game, but we didn't have time to implement this. 
 
 Probcut would likely do better pruning. 
 
 We should have used iterative deepening to search further and to also use all our time. In the first tournament we used 8 minutes total and in the second we used approximately 1 minute per game. 
 
-##Papers read:
+## Papers read
+
 NOTE: we did not look at source code.
 
 https://web.stanford.edu/class/cs221/2017/restricted/p-final/man4/final.pdf
