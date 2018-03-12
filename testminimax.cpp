@@ -8,6 +8,8 @@
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
 
+    // Create board with example state. You do not necessarily need to use
+    // this, but it's provided for convenience.
     char boardData[64] = {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',

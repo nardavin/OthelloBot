@@ -22,7 +22,7 @@ float Heuristics::heuristic(Board* board, bool ourSide) {
     bool theirSide = !ourSide;
     float numPiecesMult = 0.5;
     float numMovesMult = 2.0;
-    float numStableMult = 5.0;
+    float numStableMult = 7.0;
     float frontierSizeMult = 1.0;
     float parityMult = 2.0;
     float gameEndMult = 100000.0;
