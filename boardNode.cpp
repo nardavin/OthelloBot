@@ -123,6 +123,16 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
     return alpha;
 }
 
+/*
+float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool)), bool ourSide){
+    bool movingSide = !side;
+    if(board->countMoves(!movingSide) == 0 && board->countMoves(movingSide) == 0){
+
+    }
+    vector<Move*> possibleMoves = board->possibleMoves(movingSide);
+
+}
+*/
 /**
  * Finds the best move to make this round using minimax and A/B pruning
  * @param  depth     Depth to search in the node tree
