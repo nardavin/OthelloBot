@@ -47,10 +47,14 @@ We should have used iterative deepening to search further and to also use all ou
 NOTE: we did not look at source code.
 
 https://web.stanford.edu/class/cs221/2017/restricted/p-final/man4/final.pdf
+
 http://eprints.qut.edu.au/85005/1/__staffhome.qut.edu.au_staffgroupm$_meaton_Desktop_bits-7.pdf
 https://skatgame.net/mburo/ps/improve.pdf
+
 https://en.wikipedia.org/wiki/Negamax
+
 https://en.wikipedia.org/wiki/MTD-f
+
 http://wiki.cs.pdx.edu/cs542/papers/buro/probcut.pdf
 
 
