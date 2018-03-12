@@ -25,6 +25,10 @@ Player::~Player() {
     delete othelloBoard;
 }
 
+/**
+ * Sets the player's board to a given board. Used for testing
+ * @param b Board to set the board to
+ */
 void Player::setBoard(Board* b){
     othelloBoard = b;
 }
@@ -83,6 +87,13 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     return moveToMake;
 }
 
+/**
+ * Determines the move to make during the early/mid game using minimax
+ * @param  heuristic Heuristic function to use for this search
+ * @param  depth     Depth to search into minimax tree
+ * @param  msLeft    Time remaining to make moves
+ * @return           Move to make
+ */
 Move *Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
     BoardNode* root = new BoardNode(othelloBoard, ourSide);
     Move* test = root->getBestChoice(depth, heuristic, ourSide);
@@ -90,6 +101,12 @@ Move *Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
     return test;
 }
 
+/**
+ * Determines the move to make during endgame using an endgame solver
+ * @param  opponentsMove Move that the opponent made last round
+ * @param  msLeft        Time remaining to make moves
+ * @return               Move to make
+ */
 Move *Player::endGameSolve(Move *opponentsMove, int msLeft){
     if(endGameHead == nullptr){
         endGameHead = new BoardNode(othelloBoard, ourSide);

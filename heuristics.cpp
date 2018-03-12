@@ -1,10 +1,23 @@
 #include "heuristics.hpp"
 
+/**
+ * Naive heuristic calculation, used for testminimax
+ * @param  board Board to perform heuristic on
+ * @param  side  Side to calculate heuristic for
+ * @return       Score of board
+ */
 float Heuristics::naiveHeuristic(Board* board, bool side) {
     // Sample total score heuristic
     return board->count(side) - board->count(!side);
 }
 
+/**
+ * General heuristic used for early and midgame. Evaluates multiple board
+ * factors
+ * @param  board Board to perform heuristic on
+ * @param  side  Side to calculate heuristic for
+ * @return       Score of board
+ */
 float Heuristics::heuristic(Board* board, bool ourSide) {
     bool theirSide = !ourSide;
     float numPiecesMult = 0.5;
@@ -40,6 +53,12 @@ float Heuristics::heuristic(Board* board, bool ourSide) {
     return value;
 }
 
+/**
+ * Heuristic used for endgame calculations. Only factors win/loss
+ * @param  board Board to perform heuristic on
+ * @param  side  Side to calculate heuristic for
+ * @return       Score of board
+ */
 float Heuristics::endgameHeuristic(Board* board, bool ourSide){
     int ourCount = board->count(ourSide);
     int theirCount = board->count(!ourSide);

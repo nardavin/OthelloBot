@@ -56,6 +56,10 @@ Move* BoardNode::getMove(){
     return new Move(move->getX(), move->getY());
 }
 
+/**
+ * Gets the children of a node
+ * @return Vector of node's children
+ */
 vector<BoardNode*> BoardNode::getChildren(){
     return children;
 }
@@ -142,7 +146,14 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
     return alpha;
 }
 
-
+/**
+ * Searches a tree using a modified minimax algorithm to completely map out
+ * winning moveset
+ * @param  heuristic Heuristic to describe boardstate. Should give 1 for win and
+ *                   -1 for loss.
+ * @param  ourSide   Side of the board to scan for winning moveset for
+ * @return           Worst case score for this node
+ */
 float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSide){
     if(maxSize >= 3000000){
         return -1;

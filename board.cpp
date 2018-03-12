@@ -143,6 +143,10 @@ int Board::countMoves(bool side){
     return __builtin_popcountll(allMoves);
 }
 
+/**
+ * Returns a vector of possible moves that a given side can make
+ * @param side Side to calculate moves for
+ */
 vector<Move*> Board::possibleMoves(bool side){
     if(!isMovesCalc || calcSide != side){
         calcMoves(side);
@@ -207,6 +211,10 @@ int Board::count(bool side){
     return __builtin_popcountll(pieces[side]);
 }
 
+/**
+ * Determines if the game is finished (no moves can be played)
+ * @return True if no moves can be played, false otherwise
+ */
 bool Board::isDone(){
     return !(hasMoves(BLACK) || hasMoves(WHITE));
 }
@@ -246,6 +254,11 @@ int Board::getFrontierSize(bool side){
     return __builtin_popcountll(frontier);
 }
 
+/**
+ * Counts the number of stable pieces for a given side
+ * @param  side Side to calculate stability for
+ * @return      Number of stable pieces
+ */
 int Board::countStable(bool side){
     unsigned long long fullStable = ZERO;
     unsigned long long partialStable[4];
@@ -310,6 +323,10 @@ int Board::countStable(bool side){
     return __builtin_popcountll(fullStable);
 }
 
+/**
+ * Prints the bits of a 64 bit int as a board. Used for debugging
+ * @param bits Set of bits to print
+ */
 void Board::printBits(unsigned long long bits){
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
@@ -320,6 +337,10 @@ void Board::printBits(unsigned long long bits){
     cerr << endl;
 }
 
+/**
+ * Finds the parity of a given board
+ * @return Side that the move parity gives advantage to
+ */
 bool Board::getParity() {
     return parity;
 }

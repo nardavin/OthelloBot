@@ -39,7 +39,6 @@ public:
 
     int countStable(bool side);
 
-
     vector<Move*> possibleMoves(bool side);
     bool getParity();
 
