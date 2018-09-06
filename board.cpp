@@ -104,12 +104,12 @@ unsigned long long Board::shiftBits(unsigned long long bits, Direction dir){
 void Board::calcMoves(bool side){
     unsigned long long empty = ~(pieces[side] | pieces[!side]);
     for(int i = 0; i < 8; i++){
-        moves[i] = ZERO;
+        moves[i] = BLANK;
     }
-    allMoves = ZERO;
+    allMoves = BLANK;
     for(int i = 0; i < 8; i++){
         unsigned long long candidates = pieces[!side] & shiftBits(pieces[side], directions[i]);
-        while(candidates != ZERO){
+        while(candidates != BLANK){
             moves[(i + 4) % 8] |= empty & shiftBits(candidates, directions[i]);
             allMoves |= empty & shiftBits(candidates, directions[i]);
             candidates = pieces[!side] & shiftBits(candidates, directions[i]);
@@ -147,15 +147,15 @@ int Board::countMoves(bool side){
  * Returns a vector of possible moves that a given side can make
  * @param side Side to calculate moves for
  */
-vector<Move*> Board::possibleMoves(bool side){
+vector<Move> Board::possibleMoves(bool side){
     if(!isMovesCalc || calcSide != side){
         calcMoves(side);
     }
-    vector<Move*> ret = vector<Move*>();
+    vector<Move> ret = vector<Move>();
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
             if(GET(allMoves, x, y)){
-                ret.push_back(new Move(x, y));
+                ret.push_back(Move(x, y));
             }
         }
     }
@@ -168,11 +168,11 @@ vector<Move*> Board::possibleMoves(bool side){
  * @param  side Side to check the move on
  * @return      True if move is valid, false otherwise
  */
-bool Board::checkMove(Move *m, bool side){
+bool Board::checkMove(Move m, bool side){
     if(!isMovesCalc || calcSide != side){
         calcMoves(side);
     }
-    return GET(allMoves, m->getX(), m->getY());
+    return GET(allMoves, m.getX(), m.getY());
 }
 
 /**
@@ -180,15 +180,15 @@ bool Board::checkMove(Move *m, bool side){
  * @param m    Move to do on the board
  * @param side Side to perform the move from
  */
-void Board::doMove(Move *m, bool side){
-    if (m == nullptr) {
+void Board::doMove(Move m, bool side){
+    if (m.isNull()) {
         parity = !parity;
         return;
     }
     if (!checkMove(m, side)) {return;}
-    unsigned long long move = ZERO;
-    FLIP(move, m->getX(), m->getY());
-    FLIP(pieces[side], m->getX(), m->getY());
+    unsigned long long move = BLANK;
+    FLIP(move, m.getX(), m.getY());
+    FLIP(pieces[side], m.getX(), m.getY());
     for(int i = 0; i < 8; i++){
         if(move & moves[i]){
             unsigned long long target = shiftBits(move, directions[i]);
@@ -224,8 +224,8 @@ bool Board::isDone(){
  * @param data Data to change board state to
  */
 void Board::setBoard(char data[]){
-    pieces[BLACK] = ZERO;
-    pieces[WHITE] = ZERO;
+    pieces[BLACK] = BLANK;
+    pieces[WHITE] = BLANK;
     isMovesCalc = false;
 
     for(int i = 0; i < 64; i++){
@@ -244,7 +244,7 @@ void Board::setBoard(char data[]){
  * @return      Frontier of given side
  */
 int Board::getFrontierSize(bool side){
-    unsigned long long frontier = ZERO;
+    unsigned long long frontier = BLANK;
     unsigned long long empty = ~(pieces[side] | pieces[!side]);
 
     for(int i = 0; i < 8; i++){
@@ -260,7 +260,7 @@ int Board::getFrontierSize(bool side){
  * @return      Number of stable pieces
  */
 int Board::countStable(bool side){
-    unsigned long long fullStable = ZERO;
+    unsigned long long fullStable = BLANK;
     unsigned long long partialStable[4];
     // Add partial stability to edges/corners
     // NW/SE

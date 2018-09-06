@@ -23,24 +23,21 @@ int main(int argc, char *argv[]) {
 
     // Get opponent's move and time left for player each turn.
     while (cin >> moveX >> moveY >> msLeft) {
-        Move *opponentsMove = nullptr;
+        Move opponentsMove = NULL_MOVE;
         if (moveX >= 0 && moveY >= 0) {
-            opponentsMove = new Move(moveX, moveY);
+            opponentsMove = Move(moveX, moveY);
         }
 
         // Get player's move and output to java wrapper.
-        Move *playersMove = player->doMove(opponentsMove, msLeft);
-        if (playersMove != nullptr) {
-            cout << playersMove->getX() << " " << playersMove->getY() << endl;
-        } else {
+        Move playersMove = player->doMove(opponentsMove, msLeft);
+        if (playersMove.isNull()) {
             cout << "-1 -1" << endl;
+        } else {
+            cout << playersMove.getX() << " " << playersMove.getY() << endl;
         }
         cout.flush();
         cerr.flush();
 
-        // Delete move objects.
-        if (opponentsMove != nullptr) delete opponentsMove;
-        if (playersMove != nullptr) delete playersMove;
     }
 
     return 0;

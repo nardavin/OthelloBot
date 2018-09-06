@@ -47,15 +47,15 @@ void Player::setBoard(Board* b){
  * The move returned must be legal; if there are no valid moves for your side,
  * return nullptr.
  */
-Move *Player::doMove(Move *opponentsMove, int msLeft) {
+Move Player::doMove(Move opponentsMove, int msLeft) {
 
-    if(opponentsMove != nullptr){
+    if(!opponentsMove.isNull()){
         movesPlayed ++;
     }
 
     othelloBoard->doMove(opponentsMove, otherSide);
 
-    Move* moveToMake;
+    Move moveToMake = NULL_MOVE;
 
     if(movesPlayed < 40){
         if (testingMinimax == true) {
@@ -66,7 +66,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
         }
     }
     else if(movesPlayed >= 60){
-        moveToMake = nullptr;
+        moveToMake = NULL_MOVE;
     }
     else{
         moveToMake = endGameSolve(opponentsMove, msLeft);
@@ -74,14 +74,14 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
     othelloBoard->doMove(moveToMake, ourSide);
 
-    if(moveToMake == nullptr){
-        cerr << "null" << endl;
+    if(moveToMake.isNull()){
+        cerr << "sudormrf: " << "pass" << endl;
     }
     else{
-        cerr << moveToMake->getX() << " " << moveToMake->getY() << endl;
+        cerr << "sudormrf: " << moveToMake.getX() << " " << moveToMake.getY() << endl;
     }
 
-    if(moveToMake != nullptr){
+    if(!moveToMake.isNull()){
         movesPlayed ++;
     }
 
@@ -95,9 +95,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
  * @param  msLeft    Time remaining to make moves
  * @return           Move to make
  */
-Move *Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
+Move Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
     BoardNode* root = new BoardNode(othelloBoard, ourSide);
-    Move* test = root->getBestChoice(depth, heuristic, ourSide);
+    Move test = root->getBestChoice(depth, heuristic, ourSide);
     delete root;
     return test;
 }
@@ -108,7 +108,7 @@ Move *Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
  * @param  msLeft        Time remaining to make moves
  * @return               Move to make
  */
-Move *Player::endGameSolve(Move *opponentsMove, int msLeft){
+Move Player::endGameSolve(Move opponentsMove, int msLeft){
     if(endGameHead == nullptr){
         endGameHead = new BoardNode(othelloBoard, ourSide);
         int score = endGameHead->searchTreeEndGame(&Heuristics::endgameHeuristic, ourSide);
@@ -118,27 +118,27 @@ Move *Player::endGameSolve(Move *opponentsMove, int msLeft){
             endGameHead = nullptr;
             return minimax(&Heuristics::heuristic, 10, msLeft);
         }
-        cerr << "CHOKEHOLD SOLUTION FOUND" << endl;
+        cerr << "sudormrf: " << "CHOKEHOLD SOLUTION FOUND" << endl;
         endGameTracker = endGameHead->getChildren()[0];
         return endGameTracker->getMove();
     }
     else{
         vector<BoardNode*> nodes = endGameTracker->getChildren();
-        for(int i = 0; i < (int)nodes.size(); i++){
-            if(opponentsMove == nullptr){
-                endGameTracker = endGameTracker->getChildren()[0];
-                break;
+        if(opponentsMove.isNull()){
+            endGameTracker = endGameTracker->getChildren()[0];
+        }
+        else{
+            for(int i = 0; i < (int)nodes.size(); i++){
+
+                Move temp = nodes[i]->getMove();
+                if(temp.getX() == opponentsMove.getX() && temp.getY() == opponentsMove.getY()){
+                    endGameTracker = endGameTracker->getChildren()[i];
+                    break;
+                }
             }
-            Move* temp = nodes[i]->getMove();
-            if(temp->getX() == opponentsMove->getX() && temp->getY() == opponentsMove->getY()){
-                endGameTracker = endGameTracker->getChildren()[i];
-                delete temp;
-                break;
-            }
-            delete temp;
         }
         if(endGameTracker->getChildren().size() == 0){
-            return nullptr;
+            return NULL_MOVE;
         }
         else{
             endGameTracker = endGameTracker->getChildren()[0];

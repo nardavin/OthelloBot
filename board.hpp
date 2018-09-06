@@ -9,7 +9,7 @@ using namespace std;
 #define GET(bits, x, y) ((bool)(bits & (0x1ULL << ( (7-x) + 8 * (7-y) ))))
 #define FLIP(bits, x, y) bits ^= (0x1ULL << ( (7-x) + 8 * (7-y) ))
 
-#define ZERO 0x0000000000000000ULL
+#define BLANK 0x0000000000000000ULL
 
 enum Direction {NW, N, NE, E, SE, S, SW, W};
 
@@ -39,14 +39,14 @@ public:
 
     int countStable(bool side);
 
-    vector<Move*> possibleMoves(bool side);
+    vector<Move> possibleMoves(bool side);
     bool getParity();
 
     bool isDone();
     bool hasMoves(bool side);
     int countMoves(bool side);
-    bool checkMove(Move *m, bool side);
-    void doMove(Move *m, bool side);
+    bool checkMove(Move m, bool side);
+    void doMove(Move m, bool side);
     int count(bool side);
     int getFrontierSize(bool side);
 

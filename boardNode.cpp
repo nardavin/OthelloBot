@@ -1,22 +1,24 @@
 #include "boardNode.hpp"
 
-int size = 0;
-int maxSize = 0;
+int nodeCount = 0;
+int maxNodeCount = 0;
 
 /**
- * Constructs node
- * @param b Board to load into mode
- * @param m Move made to get to this node from last
+ * Constructs a child node
+ * @param parentBoard Board from parent node
+ * @param m Move made to get to this node from parent
+ * @param s Which side made the last move
  */
-BoardNode::BoardNode(Board* parentBoard, Move* m, bool s){
+BoardNode::BoardNode(Board* parentBoard, Move m, bool s) {
     board = parentBoard->copy();
-    move = m;
-    side = s;
-    board->doMove(move, side);
+    board->doMove(m, s);
+    lastMove = m;
+    sideToMove = !s;
+
     children = vector<BoardNode*>();
-    size += 1;
-    if(size > maxSize){
-        maxSize = size;
+    nodeCount += 1;
+    if(nodeCount > maxNodeCount){
+        maxNodeCount = nodeCount;
     }
 
 }
@@ -27,9 +29,9 @@ BoardNode::BoardNode(Board* parentBoard, Move* m, bool s){
  * @param ourSide The side that our player is on
  */
 BoardNode::BoardNode(Board* board, bool ourSide) :
-                        BoardNode(board, nullptr, !ourSide){
-    size = 0;
-    maxSize = 0;
+                        BoardNode(board, NULL_MOVE, !ourSide) {
+    nodeCount = 0;
+    maxNodeCount = 0;
 }
 
 /**
@@ -37,23 +39,19 @@ BoardNode::BoardNode(Board* board, bool ourSide) :
  */
 BoardNode::~BoardNode(){
     if (board) delete board;
-    if (move) delete move;
     for(int i = 0; i < (int)children.size(); i++){
         delete children[i];
     }
     children.clear();
-    size -= 1;
+    nodeCount -= 1;
 }
 
 /**
  * Gets the move that was used to get from the previous board to this one
  * @return Move that was used to get from previous board to this one
  */
-Move* BoardNode::getMove(){
-    if(move == nullptr){
-        return nullptr;
-    }
-    return new Move(move->getX(), move->getY());
+Move BoardNode::getMove(){
+    return lastMove;
 }
 
 /**
@@ -75,16 +73,16 @@ vector<BoardNode*> BoardNode::getChildren(){
  */
 float BoardNode::searchTreeAB(int depth, float alpha, float beta,
                                     float (*heuristic)(Board*, bool)){
-    bool movingSide = !side;
     if(depth == 0){
-        return (*heuristic)(board, movingSide);
+        return (*heuristic)(board, sideToMove);
     }
-    vector<Move*> possibleMoves = board->possibleMoves(movingSide);
+
+    vector<Move> possibleMoves = board->possibleMoves(sideToMove);
     if(possibleMoves.size() == 0){
-        possibleMoves.push_back(nullptr);
+        possibleMoves.push_back(NULL_MOVE);
     }
     for(int i = 0; i < (int)possibleMoves.size(); i++){
-        children.push_back(new BoardNode(board, possibleMoves[i], movingSide));
+        children.push_back(new BoardNode(board, possibleMoves[i], sideToMove));
         float score = -children[i]->searchTreeAB(depth - 1, -beta, -alpha, heuristic);
         alpha = max(alpha, score);
         if(alpha >= beta) break;
@@ -92,10 +90,8 @@ float BoardNode::searchTreeAB(int depth, float alpha, float beta,
     for(int i = 0; i < (int)children.size(); i++){
         delete children[i];
     }
-    for(int i = (int)children.size(); i < (int)(int)possibleMoves.size(); i++){
-        delete possibleMoves[i];
-    }
     children.clear();
+    possibleMoves.clear();
     return alpha;
 }
 
@@ -110,25 +106,24 @@ float BoardNode::searchTreeAB(int depth, float alpha, float beta,
  */
 float BoardNode::searchTreePVS(int depth, float alpha, float beta,
                                     float (*heuristic)(Board*, bool)){
-    bool movingSide = !side;
     if(depth == 0){
-        return (*heuristic)(board, movingSide);
+        return (*heuristic)(board, sideToMove);
     }
-    vector<Move*> possibleMoves = board->possibleMoves(movingSide);
+    vector<Move> possibleMoves = board->possibleMoves(sideToMove);
     if(possibleMoves.size() == 0){
-        possibleMoves.push_back(nullptr);
+        possibleMoves.push_back(NULL_MOVE);
     }
     else if(depth > 4){
         possibleMoves = sortMoves(possibleMoves, heuristic, 1);
     }
     for(int i = 0; i < (int)possibleMoves.size(); i++){
-        children.push_back(new BoardNode(board, possibleMoves[i], movingSide));
+        children.push_back(new BoardNode(board, possibleMoves[i], sideToMove));
         float score;
         if(i == 0){
             score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
         }
         else{
-            score = -children[i]->searchTreePVS(depth - 1, -alpha-1, -alpha, heuristic);
+            score = -children[i]->searchTreePVS(depth - 1, -alpha-PVS_WINDOW, -alpha, heuristic);
             if(alpha < score && score < beta){
                 score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
             }
@@ -139,10 +134,8 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
     for(int i = 0; i < (int)children.size(); i++){
         delete children[i];
     }
-    for(int i = (int)children.size(); i < (int)(int)possibleMoves.size(); i++){
-        delete possibleMoves[i];
-    }
     children.clear();
+    possibleMoves.clear();
     return alpha;
 }
 
@@ -155,27 +148,23 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
  * @return           Worst case score for this node
  */
 float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSide){
-    if(maxSize >= 3000000){
+    if(maxNodeCount >= 3000000){
         return -1;
     }
-    bool movingSide = !side;
-    if(board->countMoves(!movingSide) == 0 && board->countMoves(movingSide) == 0){
-        //cerr << "hi" << endl;
+
+    if(board->countMoves(!sideToMove) == 0 && board->countMoves(sideToMove) == 0){
         return (*heuristic)(board, ourSide);
     }
-    vector<Move*> possibleMoves = board->possibleMoves(movingSide);
+    vector<Move> possibleMoves = board->possibleMoves(sideToMove);
     if(possibleMoves.size() == 0){
-        possibleMoves.push_back(nullptr);
+        possibleMoves.push_back(NULL_MOVE);
     }
-    if(movingSide == ourSide){
+    if(sideToMove == ourSide){
         for(int i = 0; i < (int)possibleMoves.size(); i++){
-            BoardNode *testNode = new BoardNode(board, possibleMoves[i], movingSide);
+            BoardNode *testNode = new BoardNode(board, possibleMoves[i], sideToMove);
             float score = testNode->searchTreeEndGame(heuristic, ourSide);
-            if(score == 1){
+            if(score > 0){
                 children.push_back(testNode);
-                for(int j = i + 1; j < (int)possibleMoves.size(); j++){
-                    delete possibleMoves[j];
-                }
                 return 1;
             }
             else{
@@ -186,15 +175,12 @@ float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSid
     }
     else{
         for(int i = 0; i < (int)possibleMoves.size(); i++){
-            BoardNode *testNode = new BoardNode(board, possibleMoves[i], movingSide);
+            BoardNode *testNode = new BoardNode(board, possibleMoves[i], sideToMove);
             float score = testNode->searchTreeEndGame(heuristic, ourSide);
             children.push_back(testNode);
-            if(score < 1){
+            if(score < 0){
                 for(int j = 0; j <= i; j++){
                     delete children[j];
-                }
-                for(int j = i + 1; j < (int)possibleMoves.size(); j++){
-                    delete possibleMoves[j];
                 }
                 children.clear();
                 return -1;
@@ -213,22 +199,22 @@ float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSid
  * @param  ourSide   The side that you are playing on. Passed into heuristic function.
  * @return           The most optimal move based on the heuristic function
  */
-Move* BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool ourSide){
-    vector<Move*> possibleMoves = board->possibleMoves(ourSide);
+Move BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool ourSide){
+    vector<Move> possibleMoves = board->possibleMoves(ourSide);
     if(possibleMoves.size() == 0){
-        return nullptr;
+        return NULL_MOVE;
     }
     for(int i = 0; i < (int)possibleMoves.size(); i++){
         children.push_back(new BoardNode(board, possibleMoves[i], ourSide));
     }
     float alpha = -numeric_limits<float>::max();
     float beta = numeric_limits<float>::max();
-    Move* ret = new Move(0, 0);
+
+    Move ret = NULL_MOVE;
     for(int i = 0; i < (int)children.size(); i++){
         float score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
         if(score > alpha){
             alpha = score;
-            delete ret;
             ret = children[i]->getMove();
         }
     }
@@ -246,19 +232,18 @@ Move* BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool
  * @param depth     How deep the search will go
  * @return          The sorted vector of moves
  */
-vector<Move*> BoardNode::sortMoves(vector<Move*> moves, float (*heuristic)(Board*, bool),
+vector<Move> BoardNode::sortMoves(vector<Move> moves, float (*heuristic)(Board*, bool),
                                             int depth){
     vector<pair<float, int>> indexScores;
     float alpha = -numeric_limits<float>::max();
     float beta = numeric_limits<float>::max();
 
     for(int i = 0; i < (int)moves.size(); i++){
-        Move *tempMove = new Move(moves[i]->getX(), moves[i]->getY());
-        BoardNode node = BoardNode(board, tempMove, !side);
+        BoardNode node = BoardNode(board, moves[i], sideToMove);
         indexScores.push_back(make_pair(node.searchTreeAB(depth, alpha, beta, heuristic), i));
     }
     std::sort(indexScores.begin(), indexScores.end());
-    vector<Move*> sorted;
+    vector<Move> sorted;
     for(int i = 0; i < (int)indexScores.size(); i++){
         sorted.push_back(moves[indexScores[i].second]);
     }

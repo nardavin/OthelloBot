@@ -10,8 +10,8 @@ using namespace std;
 
 class Player {
 private:
-    Move *minimax(float (*heuristic)(Board*, bool), int depth, int msLeft);
-    Move *endGameSolve(Move *opponentsMove, int msLeft);
+    Move minimax(float (*heuristic)(Board*, bool), int depth, int msLeft);
+    Move endGameSolve(Move opponentsMove, int msLeft);
     Board* othelloBoard;
     int movesPlayed;
     bool ourSide;
@@ -22,7 +22,7 @@ public:
     Player(bool side);
     ~Player();
     void setBoard(Board* b);
-    Move *doMove(Move *opponentsMove, int msLeft);
+    Move doMove(Move opponentsMove, int msLeft);
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
 };
