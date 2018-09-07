@@ -66,7 +66,7 @@ Move Player::doMove(Move opponentsMove, int msLeft) {
 
     if(movesPlayed < 40){
         if (testingMinimax == true) {
-            moveToMake = minimax(mainHeuristic, 10, msLeft);
+            moveToMake = minimax(naiveHeuristic, 2, msLeft);
         }
         else {
             moveToMake = minimax(mainHeuristic, 10, msLeft);

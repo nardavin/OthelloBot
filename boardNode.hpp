@@ -10,7 +10,7 @@
 #include "heuristic.hpp"
 using namespace std;
 
-#define PVS_WINDOW 0.001
+#define PVS_WINDOW 0.0001
 
 class BoardNode{
 
