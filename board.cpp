@@ -10,8 +10,8 @@ static Direction directions[8] = {NW, N, NE, E, SE, S, SW, W};
 Board::Board(){
     pieces[WHITE] = 0x0000001008000000ULL;
     pieces[BLACK] = 0x0000000810000000ULL;
-    isMovesCalc = false;
-    calcSide = BLACK;
+    isMovesCalc[WHITE] = false;
+    isMovesCalc[BLACK] = false;
     parity = WHITE;
 }
 
@@ -30,11 +30,13 @@ Board* Board::copy(){
     newBoard->pieces[WHITE] = pieces[WHITE];
     newBoard->pieces[BLACK] = pieces[BLACK];
     for(int i = 0; i < 8; i++){
-        newBoard->moves[i] = moves[i];
+        newBoard->moves[WHITE][i] = moves[WHITE][i];
+        newBoard->moves[BLACK][i] = moves[BLACK][i];
     }
-    newBoard->allMoves = allMoves;
-    newBoard->isMovesCalc = isMovesCalc;
-    newBoard->calcSide = calcSide;
+    newBoard->allMoves[WHITE] = allMoves[WHITE];
+    newBoard->allMoves[BLACK] = allMoves[BLACK];
+    newBoard->isMovesCalc[WHITE] = isMovesCalc[WHITE];
+    newBoard->isMovesCalc[BLACK] = isMovesCalc[BLACK];
     newBoard->parity = parity;
     return newBoard;
 }
@@ -104,19 +106,18 @@ unsigned long long Board::shiftBits(unsigned long long bits, Direction dir){
 void Board::calcMoves(bool side){
     unsigned long long empty = ~(pieces[side] | pieces[!side]);
     for(int i = 0; i < 8; i++){
-        moves[i] = BLANK;
+        moves[side][i] = BLANK;
     }
-    allMoves = BLANK;
+    allMoves[side] = BLANK;
     for(int i = 0; i < 8; i++){
         unsigned long long candidates = pieces[!side] & shiftBits(pieces[side], directions[i]);
         while(candidates != BLANK){
-            moves[(i + 4) % 8] |= empty & shiftBits(candidates, directions[i]);
-            allMoves |= empty & shiftBits(candidates, directions[i]);
+            moves[side][(i + 4) % 8] |= empty & shiftBits(candidates, directions[i]);
+            allMoves[side] |= empty & shiftBits(candidates, directions[i]);
             candidates = pieces[!side] & shiftBits(candidates, directions[i]);
         }
     }
-    calcSide = side;
-    isMovesCalc = true;
+    isMovesCalc[side] = true;
 }
 
 /**
@@ -125,10 +126,10 @@ void Board::calcMoves(bool side){
  * @return      True if there are >0 possible moves, false otherwise
  */
 bool Board::hasMoves(bool side){
-    if(!isMovesCalc || calcSide != side){
+    if(!isMovesCalc[side]){
         calcMoves(side);
     }
-    return (bool)allMoves;
+    return (bool)allMoves[side];
 }
 
 /**
@@ -137,10 +138,10 @@ bool Board::hasMoves(bool side){
  * @return      Number of available moves
  */
 int Board::countMoves(bool side){
-    if(!isMovesCalc || calcSide != side){
+    if(!isMovesCalc[side]){
         calcMoves(side);
     }
-    return __builtin_popcountll(allMoves);
+    return __builtin_popcountll(allMoves[side]);
 }
 
 /**
@@ -148,13 +149,13 @@ int Board::countMoves(bool side){
  * @param side Side to calculate moves for
  */
 vector<Move> Board::possibleMoves(bool side){
-    if(!isMovesCalc || calcSide != side){
+    if(!isMovesCalc[side]){
         calcMoves(side);
     }
     vector<Move> ret = vector<Move>();
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
-            if(GET(allMoves, x, y)){
+            if(GET(allMoves[side], x, y)){
                 ret.push_back(Move(x, y, side));
             }
         }
@@ -172,10 +173,10 @@ vector<Move> Board::possibleMoves(bool side){
  */
 bool Board::checkMove(Move m){
     bool side = m.getSide();
-    if(!isMovesCalc || calcSide != side){
+    if(!isMovesCalc[side]){
         calcMoves(side);
     }
-    return GET(allMoves, m.getX(), m.getY());
+    return GET(allMoves[side], m.getX(), m.getY());
 }
 
 /**
@@ -193,7 +194,7 @@ void Board::doMove(Move m){
     FLIP(move, m.getX(), m.getY());
     FLIP(pieces[side], m.getX(), m.getY());
     for(int i = 0; i < 8; i++){
-        if(move & moves[i]){
+        if(move & moves[side][i]){
             unsigned long long target = shiftBits(move, directions[i]);
             while(!(target & pieces[side])){
                 pieces[side] |= target;
@@ -202,7 +203,8 @@ void Board::doMove(Move m){
             }
         }
     }
-    isMovesCalc = false;
+    isMovesCalc[WHITE] = false;
+    isMovesCalc[BLACK] = false;
 }
 
 /**
@@ -229,7 +231,8 @@ bool Board::isDone(){
 void Board::setBoard(char data[]){
     pieces[BLACK] = BLANK;
     pieces[WHITE] = BLANK;
-    isMovesCalc = false;
+    isMovesCalc[WHITE] = false;
+    isMovesCalc[BLACK] = false;
 
     for(int i = 0; i < 64; i++){
         if(data[i] == 'b'){

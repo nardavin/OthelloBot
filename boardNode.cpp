@@ -71,9 +71,9 @@ vector<BoardNode*> BoardNode::getChildren(){
  * @return           Score of the board accounting for future possible moves
  */
 float BoardNode::searchTreeAB(int depth, float alpha, float beta,
-                                    float (*heuristic)(Board*, bool)){
+                                    Heuristic* heuristic){
     if(depth == 0){
-        return (*heuristic)(board, sideToMove);
+        return heuristic->getScore(board, sideToMove);
     }
 
     vector<Move> possibleMoves = board->possibleMoves(sideToMove);
@@ -101,9 +101,9 @@ float BoardNode::searchTreeAB(int depth, float alpha, float beta,
  * @return           Score of the board accounting for future possible moves
  */
 float BoardNode::searchTreePVS(int depth, float alpha, float beta,
-                                    float (*heuristic)(Board*, bool)){
+                                    Heuristic* heuristic){
     if(depth == 0){
-        return (*heuristic)(board, sideToMove);
+        return heuristic->getScore(board, sideToMove);
     }
     vector<Move> possibleMoves = board->possibleMoves(sideToMove);
 
@@ -141,13 +141,13 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
  * @param  ourSide   Side of the board to scan for winning moveset for
  * @return           Worst case score for this node
  */
-float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSide){
+float BoardNode::searchTreeEndGame(Heuristic* heuristic, bool ourSide){
     if(maxNodeCount >= 3000000){
         return -1;
     }
 
-    if(board->countMoves(!sideToMove) == 0 && board->countMoves(sideToMove) == 0){
-        return (*heuristic)(board, ourSide);
+    if(board->isDone()){
+        return heuristic->getScore(board, ourSide);
     }
     vector<Move> possibleMoves = board->possibleMoves(sideToMove);
 
@@ -170,7 +170,7 @@ float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSid
             BoardNode *testNode = new BoardNode(board, possibleMoves[i]);
             float score = testNode->searchTreeEndGame(heuristic, ourSide);
             children.push_back(testNode);
-            if(score < 0){
+            if(score <= 0){
                 for(int j = 0; j <= i; j++){
                     delete children[j];
                 }
@@ -191,8 +191,8 @@ float BoardNode::searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSid
  * @param  ourSide   The side that you are playing on. Passed into heuristic function.
  * @return           The most optimal move based on the heuristic function
  */
-Move BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool ourSide){
-    vector<Move> possibleMoves = board->possibleMoves(ourSide);
+Move BoardNode::getBestChoice(int depth, Heuristic* heuristic){
+    vector<Move> possibleMoves = board->possibleMoves(sideToMove);
     if(possibleMoves.size() == 1){
         return possibleMoves[0];
     }
@@ -202,7 +202,7 @@ Move BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool 
     float alpha = -numeric_limits<float>::max();
     float beta = numeric_limits<float>::max();
 
-    Move ret = NULL_MOVE(ourSide);
+    Move ret = NULL_MOVE(sideToMove);
     for(int i = 0; i < (int)children.size(); i++){
         float score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
         if(score > alpha){
@@ -224,7 +224,7 @@ Move BoardNode::getBestChoice(int depth, float (*heuristic)(Board*, bool), bool 
  * @param depth     How deep the search will go
  * @return          The sorted vector of moves
  */
-vector<Move> BoardNode::sortMoves(vector<Move> moves, float (*heuristic)(Board*, bool),
+vector<Move> BoardNode::sortMoves(vector<Move> moves, Heuristic* heuristic,
                                             int depth){
     vector<pair<float, int>> indexScores;
     float alpha = -numeric_limits<float>::max();

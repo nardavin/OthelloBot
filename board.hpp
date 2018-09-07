@@ -18,10 +18,9 @@ class Board {
 private:
     unsigned long long pieces[2];
 
-    unsigned long long moves[8];
-    unsigned long long allMoves;
-    bool isMovesCalc;
-    bool calcSide;
+    unsigned long long moves[2][8];
+    unsigned long long allMoves[2];
+    bool isMovesCalc[2];
 
     unsigned long long shiftBits(unsigned long long bits, Direction dir);
     void calcMoves(bool side);

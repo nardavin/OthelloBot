@@ -5,12 +5,12 @@
 #include "common.hpp"
 #include "board.hpp"
 #include "boardNode.hpp"
-#include "heuristics.hpp"
+#include "linearHeuristic.hpp"
 using namespace std;
 
 class Player {
 private:
-    Move minimax(float (*heuristic)(Board*, bool), int depth, int msLeft);
+    Move minimax(Heuristic* heuristic, int depth, int msLeft);
     Move endGameSolve(Move opponentsMove, int msLeft);
     Board* othelloBoard;
     int movesPlayed;
@@ -18,6 +18,9 @@ private:
     bool otherSide;
     BoardNode* endGameHead;
     BoardNode* endGameTracker;
+    LinearHeuristic* mainHeuristic;
+    LinearHeuristic* naiveHeuristic;
+    LinearHeuristic* endgameHeuristic;
 public:
     Player(bool side);
     ~Player();

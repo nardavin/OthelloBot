@@ -7,9 +7,10 @@
 #include <algorithm>
 #include "common.hpp"
 #include "board.hpp"
+#include "heuristic.hpp"
 using namespace std;
 
-#define PVS_WINDOW 1
+#define PVS_WINDOW 0.001
 
 class BoardNode{
 
@@ -24,13 +25,13 @@ public:
     BoardNode(Board* board, bool ourSide);
     BoardNode(Board* b, Move m);
     ~BoardNode();
-    Move getBestChoice(int depth, float (*heuristic)(Board*, bool), bool ourSide);
+    Move getBestChoice(int depth, Heuristic* heuristic);
     float searchTreeAB(int depth, float alpha, float beta,
-                float (*heuristic)(Board*, bool));
+                Heuristic* heuristic);
     float searchTreePVS(int depth, float alpha, float beta,
-                float (*heuristic)(Board*, bool));
-    float searchTreeEndGame(float (*heuristic)(Board*, bool), bool ourSide);
-    vector<Move> sortMoves(vector<Move> moves, float (*heuristic)(Board*, bool),
+                Heuristic* heuristic);
+    float searchTreeEndGame(Heuristic* heuristic, bool ourSide);
+    vector<Move> sortMoves(vector<Move> moves, Heuristic* heuristic,
                                                     int depth);
     Move getMove();
     vector<BoardNode*> getChildren();

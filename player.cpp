@@ -16,6 +16,10 @@ Player::Player(bool side) {
 
     movesPlayed = 0;
     endGameHead = nullptr;
+
+    mainHeuristic = new LinearHeuristic("weights/handmade.weights");
+    naiveHeuristic = new LinearHeuristic("weights/naive.weights");
+    endgameHeuristic = new LinearHeuristic("weights/endgame.weights");
 }
 
 /*
@@ -23,6 +27,9 @@ Player::Player(bool side) {
  */
 Player::~Player() {
     delete othelloBoard;
+    delete mainHeuristic;
+    delete naiveHeuristic;
+    delete endgameHeuristic;
 }
 
 /**
@@ -59,10 +66,10 @@ Move Player::doMove(Move opponentsMove, int msLeft) {
 
     if(movesPlayed < 40){
         if (testingMinimax == true) {
-            moveToMake = minimax(&Heuristics::naiveHeuristic, 2, msLeft);
+            moveToMake = minimax(mainHeuristic, 10, msLeft);
         }
         else {
-            moveToMake = minimax(&Heuristics::heuristic, 10, msLeft);
+            moveToMake = minimax(mainHeuristic, 10, msLeft);
         }
     }
     else if(movesPlayed >= 60){
@@ -95,9 +102,9 @@ Move Player::doMove(Move opponentsMove, int msLeft) {
  * @param  msLeft    Time remaining to make moves
  * @return           Move to make
  */
-Move Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
+Move Player::minimax(Heuristic* heuristic, int depth, int msLeft){
     BoardNode* root = new BoardNode(othelloBoard, ourSide);
-    Move test = root->getBestChoice(depth, heuristic, ourSide);
+    Move test = root->getBestChoice(depth, heuristic);
     delete root;
     return test;
 }
@@ -111,12 +118,12 @@ Move Player::minimax(float (*heuristic)(Board*, bool), int depth, int msLeft){
 Move Player::endGameSolve(Move opponentsMove, int msLeft){
     if(endGameHead == nullptr){
         endGameHead = new BoardNode(othelloBoard, ourSide);
-        int score = endGameHead->searchTreeEndGame(&Heuristics::endgameHeuristic, ourSide);
+        int score = endGameHead->searchTreeEndGame(endgameHeuristic, ourSide);
         if(score < 1){
             cerr << "No solution found" << endl;
             delete endGameHead;
             endGameHead = nullptr;
-            return minimax(&Heuristics::heuristic, 10, msLeft);
+            return minimax(mainHeuristic, 10, msLeft);
         }
         cerr << "sudormrf: " << "CHOKEHOLD SOLUTION FOUND" << endl;
         endGameTracker = endGameHead->getChildren()[0];
