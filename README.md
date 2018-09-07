@@ -22,7 +22,7 @@ Alessio Amaolo
 
 ## Submission Log
 
-Winter 2018 Submission ID: 979b3447eef28d7ca8fba07480eb7cd0e82f997f
+Winter 2018 Submission: [979b3447eef28d7ca8fba07480eb7cd0e82f997f](https://github.com/nardavin/OthelloBot/tree/979b3447eef28d7ca8fba07480eb7cd0e82f997f)
 
 ## Improvements to our bot
 
