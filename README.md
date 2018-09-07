@@ -5,20 +5,20 @@ By Nicholas Ardavin and Alessio Amaolo
 ## Contributions by Each Member
 
 Nicholas Ardavin:
--Implemented minimax and AB pruning
--Improved minimax to use negamax and negascout
--Implemented endgame solver
--Completed the bitboard implementation
--Debugged lots of code
+- Implemented minimax and AB pruning
+- Improved minimax to use negamax and negascout
+- Implemented endgame solver
+- Completed the bitboard implementation
+- Debugged lots of code
 
 Alessio Amaolo
--Wrote basic testing code and basic structure for program
--Began to implement the bitboard usage instead of the given board
--Wrote and tuned heuristic
--Tested heuristic/minimax against many puzzles in the book "Othello: A Minute to Learn, A Lifetime to Master" to ensure that it was finding the right solutions
--Read papers to find the best algorithms/implementations for bitboard, negascout, probcut. 
--Attempted the integration of Logistello's opening book. 
--Debugged a fair amount of code
+- Wrote basic testing code and basic structure for program
+- Began to implement the bitboard usage instead of the given board
+- Wrote and tuned heuristic
+- Tested heuristic/minimax against many puzzles in the book "Othello: A Minute to Learn, A Lifetime to Master" to ensure that it was finding the right solutions
+- Read papers to find the best algorithms/implementations for bitboard, negascout, probcut. 
+- Attempted the integration of Logistello's opening book. 
+- Debugged a fair amount of code
 
 
 ## Improvements to our bot
