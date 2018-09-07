@@ -20,6 +20,9 @@ Alessio Amaolo
 - Attempted the integration of Logistello's opening book. 
 - Debugged a fair amount of code
 
+## Submission Log
+
+Winter 2018 Submission ID: 979b3447eef28d7ca8fba07480eb7cd0e82f997f
 
 ## Improvements to our bot
 
