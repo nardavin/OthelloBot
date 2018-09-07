@@ -155,9 +155,12 @@ vector<Move> Board::possibleMoves(bool side){
     for(int y = 0; y < 8; y++){
         for(int x = 0; x < 8; x++){
             if(GET(allMoves, x, y)){
-                ret.push_back(Move(x, y));
+                ret.push_back(Move(x, y, side));
             }
         }
+    }
+    if(ret.size() == 0) {
+        ret.push_back(NULL_MOVE(side));
     }
     return ret;
 }
@@ -165,10 +168,10 @@ vector<Move> Board::possibleMoves(bool side){
 /**
  * Checks if a certain move is valid for the specified side
  * @param  m    Move to check
- * @param  side Side to check the move on
  * @return      True if move is valid, false otherwise
  */
-bool Board::checkMove(Move m, bool side){
+bool Board::checkMove(Move m){
+    bool side = m.getSide();
     if(!isMovesCalc || calcSide != side){
         calcMoves(side);
     }
@@ -178,14 +181,14 @@ bool Board::checkMove(Move m, bool side){
 /**
  * Does a given move on the board
  * @param m    Move to do on the board
- * @param side Side to perform the move from
  */
-void Board::doMove(Move m, bool side){
+void Board::doMove(Move m){
     if (m.isNull()) {
         parity = !parity;
         return;
     }
-    if (!checkMove(m, side)) {return;}
+    bool side = m.getSide();
+    if (!checkMove(m)) {return;}
     unsigned long long move = BLANK;
     FLIP(move, m.getX(), m.getY());
     FLIP(pieces[side], m.getX(), m.getY());

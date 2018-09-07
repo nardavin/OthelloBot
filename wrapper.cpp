@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
 
     // Get opponent's move and time left for player each turn.
     while (cin >> moveX >> moveY >> msLeft) {
-        Move opponentsMove = NULL_MOVE;
+        Move opponentsMove = NULL_MOVE(!side);
         if (moveX >= 0 && moveY >= 0) {
-            opponentsMove = Move(moveX, moveY);
+            opponentsMove = Move(moveX, moveY, !side);
         }
 
         // Get player's move and output to java wrapper.

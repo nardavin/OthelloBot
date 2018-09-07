@@ -53,9 +53,9 @@ Move Player::doMove(Move opponentsMove, int msLeft) {
         movesPlayed ++;
     }
 
-    othelloBoard->doMove(opponentsMove, otherSide);
+    othelloBoard->doMove(opponentsMove);
 
-    Move moveToMake = NULL_MOVE;
+    Move moveToMake = NULL_MOVE(ourSide);
 
     if(movesPlayed < 40){
         if (testingMinimax == true) {
@@ -66,13 +66,13 @@ Move Player::doMove(Move opponentsMove, int msLeft) {
         }
     }
     else if(movesPlayed >= 60){
-        moveToMake = NULL_MOVE;
+        moveToMake = NULL_MOVE(ourSide);
     }
     else{
         moveToMake = endGameSolve(opponentsMove, msLeft);
     }
 
-    othelloBoard->doMove(moveToMake, ourSide);
+    othelloBoard->doMove(moveToMake);
 
     if(moveToMake.isNull()){
         cerr << "sudormrf: " << "pass" << endl;
@@ -138,7 +138,7 @@ Move Player::endGameSolve(Move opponentsMove, int msLeft){
             }
         }
         if(endGameTracker->getChildren().size() == 0){
-            return NULL_MOVE;
+            return NULL_MOVE(ourSide);
         }
         else{
             endGameTracker = endGameTracker->getChildren()[0];

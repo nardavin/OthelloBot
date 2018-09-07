@@ -1,5 +1,5 @@
-#ifndef __HEURISTIC_H__
-#define __HEURISTIC_H__
+#ifndef __HEURISTICS_H__
+#define __HEURISTICS_H__
 
 #include "common.hpp"
 #include "board.hpp"

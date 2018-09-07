@@ -45,8 +45,8 @@ public:
     bool isDone();
     bool hasMoves(bool side);
     int countMoves(bool side);
-    bool checkMove(Move m, bool side);
-    void doMove(Move m, bool side);
+    bool checkMove(Move m);
+    void doMove(Move m);
     int count(bool side);
     int getFrontierSize(bool side);
 

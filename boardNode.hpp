@@ -22,7 +22,7 @@ private:
 
 public:
     BoardNode(Board* board, bool ourSide);
-    BoardNode(Board* b, Move m, bool s);
+    BoardNode(Board* b, Move m);
     ~BoardNode();
     Move getBestChoice(int depth, float (*heuristic)(Board*, bool), bool ourSide);
     float searchTreeAB(int depth, float alpha, float beta,
