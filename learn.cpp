@@ -12,15 +12,15 @@ int main(int argc, char *argv[]) {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-        ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+        ' ', ' ', ' ', 'w', 'b', ' ', ' ', ' ',
+        ' ', ' ', ' ', 'b', 'w', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
     };
 
     Board *board = new Board();
-    //board->setBoard(boardData);
+    board->setBoard(boardData);
 
     LinearHeuristic* heuristic = new LinearHeuristic("weights/handmade.weights");
 
@@ -36,8 +36,6 @@ int main(int argc, char *argv[]) {
     principal->printBoard();
 
     cerr << heuristic->getScore(principal, WHITE) << endl;
-
-    heuristic->saveWeights("weights/lol.weights");
 
     delete principal;
     delete board;
