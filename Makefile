@@ -18,6 +18,9 @@ testgame: $(OBJDIR)/testgame.o
 testminimax: $(OBJS) $(OBJDIR)/testminimax.o
 	$(CC) -o $@ -pg $^
 
+learn: obj/learn.o obj/board.o obj/linearHeuristic.o obj/boardNodeLearning.o
+	$(CC) -o $@ -pg $^
+
 $(OBJDIR)/%.o: %.cpp
 	$(CC) -c $(CFLAGS) -x c++ $< -o $@
 
@@ -28,6 +31,6 @@ cleanjava:
 	make -C java/ clean
 
 clean:
-	rm -f $(OBJDIR)/*.o $(PLAYERNAME) testgame testminimax gmon.out
+	rm -f $(OBJDIR)/*.o $(PLAYERNAME) testgame testminimax learn gmon.out
 
 .PHONY: java testminimax

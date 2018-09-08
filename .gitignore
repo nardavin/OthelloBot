@@ -1,5 +1,8 @@
 obj/*.o
 *.class
 *.swp
+*.out
 testgame
 sudormrf
+testminimax
+learn
