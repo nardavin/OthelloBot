@@ -21,6 +21,8 @@ LinearHeuristic::LinearHeuristic(const char* filename) :
         ifile >> value;
         weights[i] = value;
     }
+
+    ifile.close();
 }
 
 LinearHeuristic::~LinearHeuristic() {
@@ -54,20 +56,38 @@ double LinearHeuristic::getScore(Board* board, bool side){
 
     VectorXd inputs = getInputs(board, side);
 
-    double result = tanh(weights.dot(inputs));
-
-    if (result == 1 || result == -1) {
-        cerr << "sudormrf: weights too large: " << weights.dot(inputs) << endl;
-        exit(1);
-    }
-
-    return tanh(weights.dot(inputs));
+    return TANH_MAX * tanh(TANH_SLOPE * weights.dot(inputs));
 }
 
 
 VectorXd LinearHeuristic::getGrad(Board* board, bool side){
-    return VectorXd(NUM_LIN_WEIGHTS);
+    if (board->isDone()) {
+        return VectorXd::Zero(NUM_LIN_WEIGHTS);
+    }
+
+    VectorXd inputs = getInputs(board, side);
+    double score = TANH_MAX * tanh(TANH_SLOPE * weights.dot(inputs));
+
+    return inputs * (TANH_MAX * TANH_SLOPE * (1 - pow(tanh(TANH_SLOPE * score), 2)));
 }
 
-void LinearHeuristic::updateWeights(void* deltaWeights){
+void LinearHeuristic::updateWeights(VectorXd& deltaWeights){
+    weights += deltaWeights;
+}
+
+void LinearHeuristic::saveWeights(const char* filename) {
+    ofstream ofile(filename);
+
+    if(!ofile.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        exit(1);
+    }
+
+    ofile << NUM_LIN_WEIGHTS << endl;
+
+    for (int i = 0; i < NUM_LIN_WEIGHTS; i++) {
+        ofile << weights[i] << endl;
+    }
+
+    ofile.close();
 }

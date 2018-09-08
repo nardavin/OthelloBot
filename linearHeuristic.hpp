@@ -12,6 +12,9 @@ using namespace std;
 using namespace Eigen;
 
 #define NUM_LIN_WEIGHTS 5
+#define LEARNING_RATE 1
+#define TANH_MAX 0.999
+#define TANH_SLOPE 1
 
 class LinearHeuristic : public Heuristic{
 private:
@@ -21,7 +24,8 @@ public:
     ~LinearHeuristic();
     double getScore(Board* board, bool side);
     VectorXd getGrad(Board* board, bool side);
-    void updateWeights(void* deltaWeights);
+    void updateWeights(VectorXd& deltaWeights);
+    void saveWeights(const char* filename);
 };
 
 #endif
