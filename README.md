@@ -2,64 +2,41 @@
 
 By Nicholas Ardavin and Alessio Amaolo
 
-## Contributions by Each Member
+## Bot Features
 
-Nicholas Ardavin:
-- Implemented minimax and AB pruning
-- Improved minimax to use negamax and negascout
-- Implemented endgame solver
-- Completed the bitboard implementation
-- Debugged lots of code
+- Bitboard implemtation of Othello board for fast evaluation of board state and efficient storage
+- Principal Variation Search (Negascout) with Negamax to reduce search time of minimax
+- Basic move ordering with 1-ply search
+- 10-ply search for accurate lookahead
+- Linear heuristic function that accounts for piece count, number of available moves, number of stable pieces, frontier size, and board parity
+- Machine learninng optimization of heuristic parameters using TD-Leaf(λ)
+- 20-ply endgame solver
 
-Alessio Amaolo
-- Wrote basic testing code and basic structure for program
-- Began to implement the bitboard usage instead of the given board
-- Wrote and tuned heuristic
-- Tested heuristic/minimax against many puzzles in the book "Othello: A Minute to Learn, A Lifetime to Master" to ensure that it was finding the right solutions
-- Read papers to find the best algorithms/implementations for bitboard, negascout, probcut. 
-- Attempted the integration of Logistello's opening book. 
-- Debugged a fair amount of code
+## Future Plans
+
+- Opening book
+- Replace current tree search with probcut
+- Improve move ordering
+- Iterative deepening
+- Optimize time usage
 
 ## Submission Log
 
 Winter 2018 Submission: [979b3447eef28d7ca8fba07480eb7cd0e82f997f](https://github.com/nardavin/OthelloBot/tree/979b3447eef28d7ca8fba07480eb7cd0e82f997f)
 
-## Improvements to our bot
+## Relevant Papers/Websites
 
-Negascout with Negamax is better than minimax with alpha beta pruning, since it does move ordering to search the moves that are likely better significantly more than the moves that are likely to not be as good. 
+[Othello Strategy Guide](http://radagast.se/othello/Help/strategy.html)
 
-Endgame solver that looks 20 moves ahead and forces the opponent to lose (if a solution is found). Otherwise it'll play normally with the heuristic and continue searching for a forced win, since the opponent may still make a mistake. 
+[Bitboard Methods for Games](http://eprints.qut.edu.au/85005/1/__staffhome.qut.edu.au_staffgroupm$_meaton_Desktop_bits-7.pdf)
 
-Bitboards instead of the regular board implementation. This utilises techniques from a paper online () to generate moves, make moves, and calculate all the heuristic parameters (mainly stability). Since we could use bit operations to do all these tasks, we got a significant speed increase (factor of about 100 or 2 extra depth). 
+[Negamax - Wikipedia](https://en.wikipedia.org/wiki/Negamax)
 
-Our heuristic took into account mobility, frontiers, stable pieces, parity. Then we tested it against puzzles in the book "Othello: A Minute to Learn, A Lifetime to Master" to ensure it was giving us accurate values. 
+[MTD-f Search Function - Wikipedia](https://en.wikipedia.org/wiki/MTD-f)
 
-We tried to use an opening book but it is hard. Maybe next year? 
+[Probcut: An Effective Extension of the alpha-beta Algorithm](http://wiki.cs.pdx.edu/cs542/papers/buro/probcut.pdf)
 
+[TDLeaf(λ): Combining Temporal Difference Learning with Game-Tree
+Search](https://arxiv.org/pdf/cs/9901001.pdf)
 
-## Future Work
-
-Opening book would significantly speed up the beginning of the game, but we didn't have time to implement this. 
-
-Probcut would likely do better pruning. 
-
-We should have used iterative deepening to search further and to also use all our time. In the first tournament we used 8 minutes total and in the second we used approximately 1 minute per game. 
-
-## Papers read
-
-NOTE: we did not look at source code.
-
-https://web.stanford.edu/class/cs221/2017/restricted/p-final/man4/final.pdf
-
-http://eprints.qut.edu.au/85005/1/__staffhome.qut.edu.au_staffgroupm$_meaton_Desktop_bits-7.pdf
-https://skatgame.net/mburo/ps/improve.pdf
-
-https://en.wikipedia.org/wiki/Negamax
-
-https://en.wikipedia.org/wiki/MTD-f
-
-http://wiki.cs.pdx.edu/cs542/papers/buro/probcut.pdf
-
-
-
-See [assignment9_part1.html](http://htmlpreview.github.io/?https://github.com/caltechcs2/othello/blob/master/assignment9_part1.html) and [assignment9_part2.html](http://htmlpreview.github.io/?https://github.com/caltechcs2/othello/blob/master/assignment9_part2.html)
+See [assignment9_part1.html](http://htmlpreview.github.io/?https://github.com/caltechcs2/othello/blob/master/assignment9_part1.html) and [assignment9_part2.html](http://htmlpreview.github.io/?https://github.com/caltechcs2/othello/blob/master/assignment9_part2.html) for assignment details.
