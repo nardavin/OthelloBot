@@ -7,9 +7,10 @@
 #include "boardNodeLearning.hpp"
 
 #define LEARN_RATE .01
+#define LEARN_SLOW_RATE .97
 #define LAMBDA 0.7
 
-#define NUM_BATCHES 20
+#define NUM_BATCHES 50
 #define BATCH_SIZE 100
 
 #define PREGAME_MOVES 6
@@ -22,6 +23,8 @@
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
 
+    cerr << endl;
+
     LinearHeuristic* heuristic = new LinearHeuristic(INPUT_WEIGHTS);
 
     for (int batch = 0; batch < NUM_BATCHES; batch++) {
@@ -31,6 +34,8 @@ int main(int argc, char *argv[]) {
         int numDeltas = 0;
 
         for (int game = 0; game < BATCH_SIZE; game++) {
+
+            cerr << "\rGame " << game+1 << "/" << BATCH_SIZE;
 
             // Init Board
             Board *board = new Board();
@@ -64,12 +69,6 @@ int main(int argc, char *argv[]) {
                 movingSide = !movingSide;
             }
 
-            // Display Score
-            int whiteScore = board->count(WHITE);
-            int blackScore = board->count(BLACK);
-            cerr << "Game " << game+1 << "/" << BATCH_SIZE <<
-            " Score: Black-" << blackScore << " White-" << whiteScore << endl;
-
             // Setup for principal data extraction
             vector<double> diffs[2];
             diffs[BLACK] = vector<double>();
@@ -99,21 +98,15 @@ int main(int argc, char *argv[]) {
             }
 
             // Calculate delta
-            for (int i = 0; i < (int)derivs[BLACK].size(); i++) {
-                double scalar = 0;
-                for (int j = i; j < (int)diffs[BLACK].size(); j++) {
-                    scalar += pow(LAMBDA, j-i) * diffs[BLACK][j];
+            for (int side = 0; side <= 1; side++) {
+                for (int i = 0; i < (int)derivs[side].size(); i++) {
+                    double scalar = 0;
+                    for (int j = i; j < (int)diffs[side].size(); j++) {
+                        scalar += pow(LAMBDA, j-i) * diffs[side][j];
+                    }
+                    weightDelta += pow(LEARN_SLOW_RATE, batch) * LEARN_RATE * derivs[side][i] * scalar;
+                    numDeltas ++;
                 }
-                weightDelta += LEARN_RATE * derivs[BLACK][i] * scalar;
-                numDeltas ++;
-            }
-            for (int i = 0; i < (int)derivs[WHITE].size(); i++) {
-                double scalar = 0;
-                for (int j = i; j < (int)diffs[WHITE].size(); j++) {
-                    scalar += pow(LAMBDA, j-i) * diffs[WHITE][j];
-                }
-                weightDelta += LEARN_RATE * derivs[WHITE][i] * scalar;
-                numDeltas ++;
             }
 
             // Cleanup
@@ -130,6 +123,7 @@ int main(int argc, char *argv[]) {
 
         weightDelta /= (double)numDeltas;
 
+        cerr << endl;
         cerr << endl;
         cerr << "Batch " << batch+1 << "/" << NUM_BATCHES << " complete. Deltas:" << endl;
         cerr << weightDelta << endl;
