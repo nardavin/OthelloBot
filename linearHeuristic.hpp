@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 #include <fstream>
 #include <math.h>
+#include <cstdlib>
 
 using namespace std;
 using namespace Eigen;

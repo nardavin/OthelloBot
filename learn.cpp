@@ -9,17 +9,20 @@
 #define LEARN_RATE .01
 #define LAMBDA 0.7
 
-#define NUM_BATCHES 5
+#define NUM_BATCHES 20
 #define BATCH_SIZE 100
 
 #define PREGAME_MOVES 6
 #define SEARCH_DEPTH 5
 
+#define INPUT_WEIGHTS "weights/random.weights"
+#define OUTPUT_WEIGHTS "weights/learned.weights"
+
 // Use this file to test your minimax implementation (2-ply depth, with a
 // heuristic of the difference in number of pieces).
 int main(int argc, char *argv[]) {
 
-    LinearHeuristic* heuristic = new LinearHeuristic("weights/handmade.weights");
+    LinearHeuristic* heuristic = new LinearHeuristic(INPUT_WEIGHTS);
 
     for (int batch = 0; batch < NUM_BATCHES; batch++) {
 
@@ -136,7 +139,7 @@ int main(int argc, char *argv[]) {
 
     }
 
-    heuristic->saveWeights("weights/out.weights");
+    heuristic->saveWeights(OUTPUT_WEIGHTS);
 
     delete heuristic;
 

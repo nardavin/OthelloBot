@@ -3,26 +3,38 @@
 LinearHeuristic::LinearHeuristic(const char* filename) :
             Heuristic::Heuristic(NUM_LIN_WEIGHTS) {
 
-    ifstream ifile(filename);
-    if(!ifile.is_open()) {
+    if (strcmp(filename, "weights/random.weights") == 0) {
+        for (int i = 0; i < NUM_LIN_WEIGHTS; i++) {
+            double randVal = ((float)rand())/RAND_MAX;
+            randVal *= 2;
+            randVal -= 1;
+            randVal *= .05;
+            weights[i] = randVal;
+        }
+    }
+    else{
+
+        ifstream ifile(filename);
+        if(!ifile.is_open()) {
         cerr << "Error opening file: " << filename << endl;
-        exit(1);
-    }
+            exit(1);
+        }
 
-    int numWeights;
-    ifile >> numWeights;
-    if (numWeights != NUM_LIN_WEIGHTS) {
-        cerr << "Weights file " << filename << " does not have the correct number of weights" << endl;
-        exit(1);
-    }
+        int numWeights;
+        ifile >> numWeights;
+        if (numWeights != NUM_LIN_WEIGHTS) {
+            cerr << "Weights file " << filename << " does not have the correct number of weights" << endl;
+            exit(1);
+        }
 
-    double value;
-    for (int i = 0; i < NUM_LIN_WEIGHTS; i++) {
-        ifile >> value;
-        weights[i] = value;
-    }
+        double value;
+        for (int i = 0; i < NUM_LIN_WEIGHTS; i++) {
+            ifile >> value;
+            weights[i] = value;
+        }
 
-    ifile.close();
+        ifile.close();
+    }
 }
 
 LinearHeuristic::~LinearHeuristic() {
