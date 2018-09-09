@@ -25,7 +25,6 @@ Player::Player(bool side, char* weightName) {
 Player::~Player() {
     delete othelloBoard;
     delete mainHeuristic;
-    delete naiveHeuristic;
     delete endgameHeuristic;
 }
 
