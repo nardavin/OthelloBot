@@ -22,7 +22,7 @@ private:
     LinearHeuristic* naiveHeuristic;
     LinearHeuristic* endgameHeuristic;
 public:
-    Player(bool side);
+    Player(bool side, char* weightName);
     ~Player();
     void setBoard(Board* b);
     Move doMove(Move opponentsMove, int msLeft);

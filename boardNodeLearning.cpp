@@ -101,6 +101,7 @@ float BoardNodeLearning::searchTreeAB(int depth, float alpha, float beta,
 float BoardNodeLearning::searchTreePVS(int depth, float alpha, float beta,
                                     Heuristic* heuristic){
     if(depth == 0){
+        if (principalBoard) delete principalBoard;
         principalBoard = board->copy();
         return heuristic->getScore(board, sideToMove);
     }
@@ -114,6 +115,8 @@ float BoardNodeLearning::searchTreePVS(int depth, float alpha, float beta,
         float score;
         if(i == 0){
             score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
+            if (principalBoard) delete principalBoard;
+            principalBoard = children[i]->getPrincipalBoard();
         }
         else{
             score = -children[i]->searchTreePVS(depth - 1, -alpha-PVS_WINDOW, -alpha, heuristic);
@@ -122,6 +125,7 @@ float BoardNodeLearning::searchTreePVS(int depth, float alpha, float beta,
             }
         }
         if (score > alpha) {
+            if (principalBoard) delete principalBoard;
             principalBoard = children[i]->getPrincipalBoard();
             alpha = score;
         }
@@ -144,9 +148,6 @@ float BoardNodeLearning::searchTreePVS(int depth, float alpha, float beta,
  */
 Move BoardNodeLearning::getBestChoice(int depth, Heuristic* heuristic){
     vector<Move> possibleMoves = board->possibleMoves(sideToMove);
-    if(possibleMoves.size() == 1){
-        return possibleMoves[0];
-    }
     for(int i = 0; i < (int)possibleMoves.size(); i++){
         children.push_back(new BoardNodeLearning(board, possibleMoves[i]));
     }
@@ -158,6 +159,7 @@ Move BoardNodeLearning::getBestChoice(int depth, Heuristic* heuristic){
         float score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
         if(score > alpha){
             alpha = score;
+            if (principalBoard) delete principalBoard;
             principalBoard = children[i]->getPrincipalBoard();
             ret = children[i]->getMove();
         }

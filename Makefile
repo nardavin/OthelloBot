@@ -19,7 +19,7 @@ testminimax: $(OBJS) $(OBJDIR)/testminimax.o
 	$(CC) -o $@ -pg $^
 
 learn: obj/learn.o obj/board.o obj/linearHeuristic.o obj/boardNodeLearning.o
-	$(CC) -o $@ -pg $^
+	$(CC) -o $@ $^
 
 $(OBJDIR)/%.o: %.cpp
 	$(CC) -c $(CFLAGS) -x c++ $< -o $@

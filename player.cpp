@@ -5,7 +5,7 @@
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
  * within 30 seconds.
  */
-Player::Player(bool side) {
+Player::Player(bool side, char* weightName) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
 
@@ -17,7 +17,7 @@ Player::Player(bool side) {
     movesPlayed = 0;
     endGameHead = nullptr;
 
-    mainHeuristic = new LinearHeuristic("weights/handmade.weights");
+    mainHeuristic = new LinearHeuristic(weightName);
     naiveHeuristic = new LinearHeuristic("weights/naive.weights");
     endgameHeuristic = new LinearHeuristic("weights/endgame.weights");
 }
@@ -81,11 +81,12 @@ Move Player::doMove(Move opponentsMove, int msLeft) {
 
     othelloBoard->doMove(moveToMake);
 
+    cerr << "sudormrf-" << (ourSide==BLACK ? "Black" : "White") << ": ";
     if(moveToMake.isNull()){
-        cerr << "sudormrf: " << "pass" << endl;
+        cerr << "pass" << endl;
     }
     else{
-        cerr << "sudormrf: " << moveToMake.getX() << " " << moveToMake.getY() << endl;
+        cerr << moveToMake.getX() << " " << moveToMake.getY() << endl;
     }
 
     if(!moveToMake.isNull()){
@@ -120,12 +121,14 @@ Move Player::endGameSolve(Move opponentsMove, int msLeft){
         endGameHead = new BoardNode(othelloBoard, ourSide);
         int score = endGameHead->searchTreeEndGame(endgameHeuristic, ourSide);
         if(score < 1){
-            cerr << "No solution found" << endl;
+            cerr << "sudormrf-" << (ourSide==BLACK ? "Black" : "White") << ": "
+                << "No solution found" << endl;
             delete endGameHead;
             endGameHead = nullptr;
             return minimax(mainHeuristic, 10, msLeft);
         }
-        cerr << "sudormrf: " << "CHOKEHOLD SOLUTION FOUND" << endl;
+        cerr << "sudormrf-" << (ourSide==BLACK ? "Black" : "White") << ": "
+            << "CHOKEHOLD SOLUTION FOUND" << endl;
         endGameTracker = endGameHead->getChildren()[0];
         return endGameTracker->getMove();
     }
