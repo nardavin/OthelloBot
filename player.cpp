@@ -6,8 +6,6 @@
  * within 30 seconds.
  */
 Player::Player(bool side, char* weightName) {
-    // Will be set to true in test_minimax.cpp.
-    testingMinimax = false;
 
     othelloBoard = new Board();
 
@@ -18,7 +16,6 @@ Player::Player(bool side, char* weightName) {
     endGameHead = nullptr;
 
     mainHeuristic = new LinearHeuristic(weightName);
-    naiveHeuristic = new LinearHeuristic("weights/naive.weights");
     endgameHeuristic = new LinearHeuristic("weights/endgame.weights");
 }
 
@@ -65,12 +62,7 @@ Move Player::doMove(Move opponentsMove, int msLeft) {
     Move moveToMake = NULL_MOVE(ourSide);
 
     if(movesPlayed < 40){
-        if (testingMinimax == true) {
-            moveToMake = minimax(naiveHeuristic, 2, msLeft);
-        }
-        else {
-            moveToMake = minimax(mainHeuristic, 10, msLeft);
-        }
+        moveToMake = minimax(mainHeuristic, 10, msLeft);
     }
     else if(movesPlayed >= 60){
         moveToMake = NULL_MOVE(ourSide);

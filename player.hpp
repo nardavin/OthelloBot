@@ -19,15 +19,12 @@ private:
     BoardNode* endGameHead;
     BoardNode* endGameTracker;
     LinearHeuristic* mainHeuristic;
-    LinearHeuristic* naiveHeuristic;
     LinearHeuristic* endgameHeuristic;
 public:
     Player(bool side, char* weightName);
     ~Player();
     void setBoard(Board* b);
     Move doMove(Move opponentsMove, int msLeft);
-    // Flag to tell if the player is running within the test_minimax context
-    bool testingMinimax;
 };
 
 #endif

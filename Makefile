@@ -15,9 +15,6 @@ $(PLAYERNAME): $(OBJS) $(OBJDIR)/wrapper.o
 testgame: $(OBJDIR)/testgame.o
 	$(CC) -o $@ $^
 
-testminimax: $(OBJS) $(OBJDIR)/testminimax.o
-	$(CC) -o $@ -pg $^
-
 learn: obj/learn.o obj/board.o obj/linearHeuristic.o obj/boardNodeLearning.o
 	$(CC) -o $@ $^
 
