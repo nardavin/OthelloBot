@@ -2,6 +2,7 @@
 
 int nodeCount = 0;
 int maxNodeCount = 0;
+time_t startTime;
 
 /**
  * Constructs a child node
@@ -31,6 +32,7 @@ BoardNode::BoardNode(Board* board, bool ourSide) :
                         BoardNode(board, NULL_MOVE(!ourSide)) {
     nodeCount = 0;
     maxNodeCount = 0;
+    startTime = time(nullptr);
 }
 
 /**
@@ -142,7 +144,7 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
  * @return           Worst case score for this node
  */
 float BoardNode::searchTreeEndGame(Heuristic* heuristic, bool ourSide){
-    if(maxNodeCount >= 3000000){
+    if(maxNodeCount >= 3000000 || difftime(time(nullptr), startTime) > 60){
         return -1;
     }
 

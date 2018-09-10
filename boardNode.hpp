@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 #include <algorithm>
+#include <time.h>
 #include "common.hpp"
 #include "board.hpp"
 #include "heuristic.hpp"
