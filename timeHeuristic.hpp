@@ -1,5 +1,5 @@
-#ifndef __LINHEURISTIC_H__
-#define __LINHEURISTIC_H__
+#ifndef __TIMEHEURISTIC_H__
+#define __TIMEHEURISTIC_H__
 
 #include "common.hpp"
 #include "board.hpp"
@@ -13,18 +13,20 @@
 using namespace std;
 using namespace Eigen;
 
-#define NUM_LIN_WEIGHTS 5
+#define NUM_TOTAL_WEIGHTS 10
+#define NUM_EACH_WEIGHTS 5
 #define TANH_MAX 0.999
 #define TANH_SLOPE 1
 
-class LinearHeuristic : public Heuristic{
+class TimeHeuristic : public Heuristic{
 private:
-    VectorXd weights;
+    VectorXd constWeights;
+    VectorXd linearWeights;
 
     VectorXd getInputs(Board* board, bool side);
 public:
-    LinearHeuristic(const char* filename);
-    ~LinearHeuristic();
+    TimeHeuristic(const char* filename);
+    ~TimeHeuristic();
     double getScore(Board* board, bool side);
     VectorXd getGrad(Board* board, bool side);
     void updateWeights(VectorXd& deltaWeights);

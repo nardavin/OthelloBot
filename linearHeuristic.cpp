@@ -1,7 +1,7 @@
 #include "linearHeuristic.hpp"
 
 LinearHeuristic::LinearHeuristic(const char* filename) :
-            Heuristic::Heuristic(NUM_LIN_WEIGHTS) {
+            weights(NUM_LIN_WEIGHTS) {
 
     if (strcmp(filename, "weights/random.weights") == 0) {
         for (int i = 0; i < NUM_LIN_WEIGHTS; i++) {
@@ -20,10 +20,10 @@ LinearHeuristic::LinearHeuristic(const char* filename) :
             exit(1);
         }
 
-        int numWeights;
-        ifile >> numWeights;
-        if (numWeights != NUM_LIN_WEIGHTS) {
-            cerr << "Weights file " << filename << " does not have the correct number of weights" << endl;
+        string weightsType;
+        ifile >> weightsType;
+        if (weightsType.compare("linear") != 0) {
+            cerr << "Weights file " << filename << " does not support this heuristic type" << endl;
             exit(1);
         }
 
@@ -95,7 +95,7 @@ void LinearHeuristic::saveWeights(const char* filename) {
         exit(1);
     }
 
-    ofile << NUM_LIN_WEIGHTS << endl;
+    ofile << "linear" << endl;
 
     for (int i = 0; i < NUM_LIN_WEIGHTS; i++) {
         ofile << weights[i] << endl;

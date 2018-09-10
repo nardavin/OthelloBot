@@ -15,7 +15,26 @@ Player::Player(bool side, char* weightName) {
     movesPlayed = 0;
     endGameHead = nullptr;
 
-    mainHeuristic = new LinearHeuristic(weightName);
+    ifstream ifile(weightName);
+    if(!ifile.is_open()) {
+    cerr << "Error opening file: " << weightName << endl;
+        exit(1);
+    }
+    string heuristicType;
+    ifile >> heuristicType;
+    ifile.close();
+
+    if (heuristicType.compare("linear") == 0) {
+        mainHeuristic = new LinearHeuristic(weightName);
+    }
+    else if (heuristicType.compare("time") == 0) {
+        mainHeuristic = new TimeHeuristic(weightName);
+    }
+    else {
+        cerr << "Heuristic type \"" << heuristicType << "\" not supported." << endl;
+        exit(1);
+    }
+
     endgameHeuristic = new LinearHeuristic("weights/endgame.weights");
 }
 

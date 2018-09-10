@@ -2,10 +2,13 @@
 #define __PLAYER_H__
 
 #include <iostream>
+#include <fstream>
+#include <string>
 #include "common.hpp"
 #include "board.hpp"
 #include "boardNode.hpp"
 #include "linearHeuristic.hpp"
+#include "timeHeuristic.hpp"
 using namespace std;
 
 class Player {
@@ -18,8 +21,8 @@ private:
     bool otherSide;
     BoardNode* endGameHead;
     BoardNode* endGameTracker;
-    LinearHeuristic* mainHeuristic;
-    LinearHeuristic* endgameHeuristic;
+    Heuristic* mainHeuristic;
+    Heuristic* endgameHeuristic;
 public:
     Player(bool side, char* weightName);
     ~Player();

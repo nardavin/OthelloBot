@@ -9,10 +9,8 @@ using namespace std;
 using namespace Eigen;
 
 class Heuristic {
-protected:
-    VectorXd weights;
 public:
-    Heuristic(int numWeights) : weights(numWeights) {}
+    Heuristic() {}
     virtual ~Heuristic() {}
     virtual double getScore(Board* board, bool side) = 0;
     virtual VectorXd getGrad(Board* board, bool side) = 0;

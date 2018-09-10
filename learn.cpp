@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include "board.hpp"
 #include "linearHeuristic.hpp"
+#include "timeHeuristic.hpp"
 #include "boardNodeLearning.hpp"
 
 #define LEARN_RATE .01
@@ -17,7 +18,7 @@
 #define SEARCH_DEPTH 5
 
 #define INPUT_WEIGHTS "weights/random.weights"
-#define OUTPUT_WEIGHTS "weights/learned.weights"
+#define OUTPUT_WEIGHTS "weights/time.weights"
 
 // Use this file to test your minimax implementation (2-ply depth, with a
 // heuristic of the difference in number of pieces).
@@ -25,12 +26,13 @@ int main(int argc, char *argv[]) {
 
     cerr << endl;
 
-    LinearHeuristic* heuristic = new LinearHeuristic(INPUT_WEIGHTS);
+    TimeHeuristic* heuristic = new TimeHeuristic(INPUT_WEIGHTS);
+    heuristic->saveWeights(OUTPUT_WEIGHTS);
 
     for (int batch = 0; batch < NUM_BATCHES; batch++) {
 
         // Zero delta for new batch
-        VectorXd weightDelta = VectorXd::Zero(NUM_LIN_WEIGHTS);
+        VectorXd weightDelta = VectorXd::Zero(NUM_TOTAL_WEIGHTS);
         int numDeltas = 0;
 
         for (int game = 0; game < BATCH_SIZE; game++) {
@@ -130,10 +132,9 @@ int main(int argc, char *argv[]) {
         cerr << endl;
 
         heuristic->updateWeights(weightDelta);
+        heuristic->saveWeights(OUTPUT_WEIGHTS);
 
     }
-
-    heuristic->saveWeights(OUTPUT_WEIGHTS);
 
     delete heuristic;
 
