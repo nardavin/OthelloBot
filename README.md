@@ -8,7 +8,7 @@ By Nicholas Ardavin and Alessio Amaolo
 - Principal Variation Search (Negascout) with Negamax to reduce search time of minimax
 - Basic move ordering with 1-ply search
 - 10-ply search for accurate lookahead
-- Linear heuristic function that accounts for piece count, number of available moves, number of stable pieces, frontier size, and board parity
+- Time-dependent heuristic function that accounts for piece count, number of available moves, number of stable pieces, frontier size, and board parity
 - Machine learninng optimization of heuristic parameters using TD-Leaf(λ)
 - 20-ply endgame solver
 
