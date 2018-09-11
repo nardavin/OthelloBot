@@ -1,7 +1,13 @@
 #include "board.hpp"
 
-static unsigned long long leftMask = 0xfefefefefefefefeULL;
-static unsigned long long rightMask = 0x7f7f7f7f7f7f7f7fULL;
+#define GET(bits, x, y) ((bool)(bits & (0x1ULL << ( (7-x) + 8 * (7-y) ))))
+#define FLIP(bits, x, y) bits ^= (0x1ULL << ( (7-x) + 8 * (7-y) ))
+
+#define BLANK 0x0000000000000000ULL
+
+#define LEFT_MASK 0xfefefefefefefefeULL
+#define RIGHT_MASK 0x7f7f7f7f7f7f7f7fULL
+
 static Direction directions[8] = {NW, N, NE, E, SE, S, SW, W};
 
 /**
@@ -70,28 +76,28 @@ void Board::printBoard(){
 unsigned long long Board::shiftBits(unsigned long long bits, Direction dir){
     switch(dir){
         case W:
-        return (bits << 1) & leftMask;
+        return (bits << 1) & LEFT_MASK;
 
         case NW:
-        return (bits << 9) & leftMask;
+        return (bits << 9) & LEFT_MASK;
 
         case N:
         return (bits << 8);
 
         case NE:
-        return (bits << 7) & rightMask;
+        return (bits << 7) & RIGHT_MASK;
 
         case E:
-        return (bits >> 1) & rightMask;
+        return (bits >> 1) & RIGHT_MASK;
 
         case SE:
-        return (bits >> 9) & rightMask;
+        return (bits >> 9) & RIGHT_MASK;
 
         case S:
         return (bits >> 8);
 
         case SW:
-        return (bits >> 7) & leftMask;
+        return (bits >> 7) & LEFT_MASK;
 
         default:
         return bits;

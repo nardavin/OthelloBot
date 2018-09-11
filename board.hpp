@@ -6,11 +6,6 @@
 #include "common.hpp"
 using namespace std;
 
-#define GET(bits, x, y) ((bool)(bits & (0x1ULL << ( (7-x) + 8 * (7-y) ))))
-#define FLIP(bits, x, y) bits ^= (0x1ULL << ( (7-x) + 8 * (7-y) ))
-
-#define BLANK 0x0000000000000000ULL
-
 enum Direction {NW, N, NE, E, SE, S, SW, W};
 
 class Board {
