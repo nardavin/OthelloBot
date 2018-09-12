@@ -36,6 +36,8 @@ Player::Player(bool side, char* weightName) {
     }
 
     endgameHeuristic = new LinearHeuristic("weights/endgame.weights");
+
+    transTable = new TransTableEntry[NUM_T_TABLE_ENTRIES]();
 }
 
 /*
@@ -45,6 +47,7 @@ Player::~Player() {
     delete othelloBoard;
     delete mainHeuristic;
     delete endgameHeuristic;
+    if (transTable) delete transTable;
 }
 
 /**
@@ -115,7 +118,7 @@ Move Player::doMove(Move opponentsMove, int msLeft) {
  */
 Move Player::minimax(Heuristic* heuristic, int depth, int msLeft){
     BoardNode* root = new BoardNode(othelloBoard, ourSide);
-    Move test = root->getBestChoice(depth, heuristic);
+    Move test = root->getBestChoice(depth, heuristic, transTable);
     delete root;
     return test;
 }
@@ -128,6 +131,8 @@ Move Player::minimax(Heuristic* heuristic, int depth, int msLeft){
  */
 Move Player::endGameSolve(Move opponentsMove, int msLeft){
     if(endGameHead == nullptr){
+        delete[] transTable;
+        transTable = nullptr;
         endGameHead = new BoardNode(othelloBoard, ourSide);
         int score = endGameHead->searchTreeEndGame(endgameHeuristic, ourSide);
         if(score < 1){
@@ -135,6 +140,7 @@ Move Player::endGameSolve(Move opponentsMove, int msLeft){
                 << "No solution found" << endl;
             delete endGameHead;
             endGameHead = nullptr;
+            transTable = new TransTableEntry[NUM_T_TABLE_ENTRIES]();
             return minimax(mainHeuristic, 10, msLeft);
         }
         cerr << "sudormrf-" << (ourSide==BLACK ? "Black" : "White") << ": "

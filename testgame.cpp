@@ -10,6 +10,6 @@ int main(int argc, char *argv[]) {
         cmd += " ";
         cmd += *(argv++);
     }
-    system(cmd.c_str());
+    (void) (system(cmd.c_str())+1); // Hacky way to remove warning
     return 0;
 }

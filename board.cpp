@@ -10,15 +10,83 @@
 
 static Direction directions[8] = {NW, N, NE, E, SE, S, SW, W};
 
+#define PIECE_HASH(x, y, side) pieceHash[side*64 + y*8 + x]
+#define MOVE_HASH(x, y, direction, length) moveHash[direction*384 + (length-1)*64 + y*8 + x]
+
+bool Board::isHashInit = false;
+unsigned long long Board::pieceHash[128];
+unsigned long long Board::moveHash[3072];
+unsigned long long Board::defaultHash;
+
+void Board::initHash(){
+    mt19937_64 generator(1337);
+    for (int side = 0; side <= 1; side++) {
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                PIECE_HASH(x, y, side) = generator();
+            }
+        }
+    }
+
+    defaultHash = PIECE_HASH(3, 3, WHITE) ^ PIECE_HASH(4, 3, BLACK)
+                ^ PIECE_HASH(3, 4, BLACK) ^ PIECE_HASH(4, 4, WHITE);
+
+    //                        NW,  N, NE, E, SE, S, SW,  W
+    int xDirectionDelta[8] = {-1,  0,  1, 1,  1, 0, -1, -1};
+    int yDirectionDelta[8] = {-1, -1, -1, 0,  1, 1,  1,  0};
+
+    for (int dir = 0; dir < 8; dir++) {
+        for (int len = 1; len <= 6; len++) {
+            for (int y = 0; y < 8; y++) {
+                for (int x = 0; x < 8; x++) {
+
+                    bool isValidMove = true;
+                    unsigned long long hash = BLANK;
+                    int length = len;
+                    int yPos = y;
+                    int xPos = x;
+
+                    while (length > 0) {
+                        yPos += yDirectionDelta[dir];
+                        xPos += xDirectionDelta[dir];
+                        length --;
+
+                        if((yDirectionDelta[dir] != 0 && (yPos <= 0 || yPos >= 7)) ||
+                           (xDirectionDelta[dir] != 0 && (xPos <= 0 || xPos >= 7))) {
+                            isValidMove = false;
+                            break;
+                        }
+
+                        hash ^= PIECE_HASH(xPos, yPos, BLACK);
+                        hash ^= PIECE_HASH(xPos, yPos, WHITE);
+                    }
+
+                    if (isValidMove) {
+                        MOVE_HASH(x, y, dir, len) = hash;
+                    }
+                    else {
+                        MOVE_HASH(x, y, dir, len) = BLANK;
+                    }
+                }
+            }
+        }
+    }
+}
+
 /**
  * Constructs a new board
  */
 Board::Board(){
+    if(!isHashInit) {
+        initHash();
+        isHashInit = true;
+    }
     pieces[WHITE] = 0x0000001008000000ULL;
     pieces[BLACK] = 0x0000000810000000ULL;
     isMovesCalc[WHITE] = false;
     isMovesCalc[BLACK] = false;
     parity = WHITE;
+    hash = defaultHash;
 }
 
 /**
@@ -44,6 +112,7 @@ Board* Board::copy(){
     newBoard->isMovesCalc[WHITE] = isMovesCalc[WHITE];
     newBoard->isMovesCalc[BLACK] = isMovesCalc[BLACK];
     newBoard->parity = parity;
+    newBoard->hash = hash;
     return newBoard;
 }
 
@@ -195,18 +264,24 @@ void Board::doMove(Move m){
         return;
     }
     bool side = m.getSide();
+    int x = m.getX();
+    int y = m.getY();
     if (!checkMove(m)) {return;}
     unsigned long long move = BLANK;
-    FLIP(move, m.getX(), m.getY());
-    FLIP(pieces[side], m.getX(), m.getY());
+    FLIP(move, x, y);
+    FLIP(pieces[side], x, y);
+    hash ^= PIECE_HASH(x, y, side);
     for(int i = 0; i < 8; i++){
         if(move & moves[side][i]){
+            int len = 0;
             unsigned long long target = shiftBits(move, directions[i]);
             while(!(target & pieces[side])){
+                len ++;
                 pieces[side] |= target;
                 pieces[!side] ^= target;
                 target = shiftBits(target, directions[i]);
             }
+            hash ^= MOVE_HASH(x, y, i, len);
         }
     }
     isMovesCalc[WHITE] = false;
@@ -227,6 +302,9 @@ int Board::count(bool side){
  * @return True if no moves can be played, false otherwise
  */
 bool Board::isDone(){
+    if ((pieces[BLACK] | pieces[WHITE]) == ~BLANK) {
+        return true;
+    }
     return !(hasMoves(BLACK) || hasMoves(WHITE));
 }
 
@@ -246,6 +324,19 @@ void Board::setBoard(char data[]){
         }
         else if(data[i] == 'w'){
             FLIP(pieces[WHITE], i % 8, i/8);
+        }
+    }
+
+    hash = BLANK;
+
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            if(GET(pieces[BLACK], x, y)) {
+                hash ^= PIECE_HASH(x, y, BLACK);
+            }
+            else if(GET(pieces[WHITE], x, y)) {
+                hash ^= PIECE_HASH(x, y, WHITE);
+            }
         }
     }
 }
@@ -355,4 +446,8 @@ void Board::printBits(unsigned long long bits){
  */
 bool Board::getParity() {
     return parity;
+}
+
+unsigned long long Board::getHash() {
+    return hash;
 }

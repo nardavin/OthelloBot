@@ -7,7 +7,7 @@
 #include "timeHeuristic.hpp"
 #include "boardNodeLearning.hpp"
 
-#define LEARN_RATE .01
+#define LEARN_RATE .02
 #define LEARN_SLOW_RATE .97
 #define LAMBDA 0.7
 
@@ -17,7 +17,7 @@
 #define PREGAME_MOVES 6
 #define SEARCH_DEPTH 5
 
-#define INPUT_WEIGHTS "weights/random.weights"
+#define INPUT_WEIGHTS "weights/time.weights"
 #define OUTPUT_WEIGHTS "weights/time.weights"
 
 // Use this file to test your minimax implementation (2-ply depth, with a

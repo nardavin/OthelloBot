@@ -103,7 +103,7 @@ float BoardNode::searchTreeAB(int depth, float alpha, float beta,
  * @return           Score of the board accounting for future possible moves
  */
 float BoardNode::searchTreePVS(int depth, float alpha, float beta,
-                                    Heuristic* heuristic){
+                                Heuristic* heuristic, TransTableEntry* tTable){
     if(depth == 0){
         return heuristic->getScore(board, sideToMove);
     }
@@ -112,21 +112,54 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
     if(depth > 4){
         possibleMoves = sortMoves(possibleMoves, heuristic, 1);
     }
+
+    if (tTable) {
+        TransTableEntry entry = tTable[board->getHash() % NUM_T_TABLE_ENTRIES];
+        if (entry.hash == board->getHash() && entry.move.getSide() == sideToMove) {
+            //if (depth == 9) cerr << "match" << endl;
+            for(int i = 0; i < (int)possibleMoves.size(); i++){
+                if (possibleMoves[i] == entry.move) {
+                    //if (depth == 9) cerr << "move found at index " << i << " with depth " << (int)entry.depth << endl;
+                    possibleMoves.erase(possibleMoves.begin() + i);
+                    possibleMoves.insert(possibleMoves.begin(), entry.move);
+                    break;
+                }
+            }
+        }
+        else {
+            //if (depth == 9) cerr << entry.hash << " " << (int)entry.depth << endl;
+        }
+    }
+
+    Move bestMove = possibleMoves[0];
     for(int i = 0; i < (int)possibleMoves.size(); i++){
         children.push_back(new BoardNode(board, possibleMoves[i]));
         float score;
         if(i == 0){
-            score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
+            score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic, tTable);
         }
         else{
-            score = -children[i]->searchTreePVS(depth - 1, -alpha-PVS_WINDOW, -alpha, heuristic);
+            score = -children[i]->searchTreePVS(depth - 1, -alpha-PVS_WINDOW, -alpha, heuristic, tTable);
             if(alpha < score && score < beta){
-                score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
+                score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic, tTable);
             }
         }
-        alpha = max(alpha, score);
+        if (score > alpha) {
+            alpha = score;
+            bestMove = possibleMoves[i];
+        }
         if(alpha >= beta) break;
     }
+
+    if (tTable) {
+        int index = board->getHash() % NUM_T_TABLE_ENTRIES;
+        if (depth >= tTable[index].depth-2) {
+            tTable[index].hash = board->getHash();
+            tTable[index].depth = depth;
+            tTable[index].move = bestMove;
+        }
+    }
+
     for(int i = 0; i < (int)children.size(); i++){
         delete children[i];
     }
@@ -144,7 +177,7 @@ float BoardNode::searchTreePVS(int depth, float alpha, float beta,
  * @return           Worst case score for this node
  */
 float BoardNode::searchTreeEndGame(Heuristic* heuristic, bool ourSide){
-    if(maxNodeCount >= 3000000 || difftime(time(nullptr), startTime) > 60){
+    if(maxNodeCount >= 2500000 || difftime(time(nullptr), startTime) > 60){
         return -1;
     }
 
@@ -193,7 +226,8 @@ float BoardNode::searchTreeEndGame(Heuristic* heuristic, bool ourSide){
  * @param  ourSide   The side that you are playing on. Passed into heuristic function.
  * @return           The most optimal move based on the heuristic function
  */
-Move BoardNode::getBestChoice(int depth, Heuristic* heuristic){
+Move BoardNode::getBestChoice(int depth, Heuristic* heuristic,
+                                        TransTableEntry* tTable){
     vector<Move> possibleMoves = board->possibleMoves(sideToMove);
     if(possibleMoves.size() == 1){
         return possibleMoves[0];
@@ -206,7 +240,7 @@ Move BoardNode::getBestChoice(int depth, Heuristic* heuristic){
 
     Move ret = NULL_MOVE(sideToMove);
     for(int i = 0; i < (int)children.size(); i++){
-        float score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic);
+        float score = -children[i]->searchTreePVS(depth - 1, -beta, -alpha, heuristic, tTable);
         if(score > alpha){
             alpha = score;
             ret = children[i]->getMove();

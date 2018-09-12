@@ -26,11 +26,11 @@ public:
     BoardNode(Board* board, bool ourSide);
     BoardNode(Board* b, Move m);
     ~BoardNode();
-    Move getBestChoice(int depth, Heuristic* heuristic);
+    Move getBestChoice(int depth, Heuristic* heuristic, TransTableEntry* tTable);
     float searchTreeAB(int depth, float alpha, float beta,
                 Heuristic* heuristic);
     float searchTreePVS(int depth, float alpha, float beta,
-                Heuristic* heuristic);
+                Heuristic* heuristic, TransTableEntry* tTable);
     float searchTreeEndGame(Heuristic* heuristic, bool ourSide);
     vector<Move> sortMoves(vector<Move> moves, Heuristic* heuristic,
                                                     int depth);

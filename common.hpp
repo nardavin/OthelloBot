@@ -11,7 +11,6 @@ using namespace std;
 
 #define NULL_MOVE(side) Move(side)
 
-
 class Move {
 
 private:
@@ -32,6 +31,21 @@ public:
 
     bool isNull() { return (bool)(move & 0x40); }
 
+    bool operator == (const Move &Ref) const
+        {
+            return(move == Ref.move);
+        }
+
 };
+
+
+#define NUM_T_TABLE_ENTRIES 10000000
+//10000000
+
+typedef struct {
+    unsigned long long hash = 0x0ULL;
+    char depth = 0;
+    Move move = NULL_MOVE(BLACK);
+} TransTableEntry;
 
 #endif

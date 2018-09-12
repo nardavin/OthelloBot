@@ -23,6 +23,7 @@ private:
     BoardNode* endGameTracker;
     Heuristic* mainHeuristic;
     Heuristic* endgameHeuristic;
+    TransTableEntry* transTable;
 public:
     Player(bool side, char* weightName);
     ~Player();
