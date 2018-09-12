@@ -8,6 +8,7 @@
 Player::Player(bool side, char* weightName) {
 
     othelloBoard = new Board();
+    book = CBook("ntest.book");
 
     ourSide = side;
     otherSide = !side;

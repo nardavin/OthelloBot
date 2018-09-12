@@ -9,6 +9,7 @@
 #include "boardNode.hpp"
 #include "linearHeuristic.hpp"
 #include "timeHeuristic.hpp"
+#include "book.hpp"
 using namespace std;
 
 class Player {
@@ -23,6 +24,7 @@ private:
     BoardNode* endGameTracker;
     Heuristic* mainHeuristic;
     Heuristic* endgameHeuristic;
+    CBook* book;
 public:
     Player(bool side, char* weightName);
     ~Player();
