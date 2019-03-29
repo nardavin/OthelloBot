@@ -263,10 +263,10 @@ void Board::doMove(Move m){
         parity = !parity;
         return;
     }
+    if (!checkMove(m)) {return;}
     bool side = m.getSide();
     int x = m.getX();
     int y = m.getY();
-    if (!checkMove(m)) {return;}
     unsigned long long move = BLANK;
     FLIP(move, x, y);
     FLIP(pieces[side], x, y);
